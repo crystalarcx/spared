@@ -374,6 +374,11 @@
         }
 
         @media print {
+            @page {
+                size: A4;
+                margin: 1cm;
+            }
+            
             body * {
                 visibility: hidden;
             }
@@ -389,6 +394,8 @@
                 top: 0;
                 width: 100%;
                 background: white !important;
+                max-height: 100vh;
+                overflow: hidden;
             }
             
             .print-header {
