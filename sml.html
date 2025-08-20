@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日月潭南投親子三日遊</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: A single-page app with a sticky top navigation for jumping between days (Day 1, 2, 3) and a 'Travel Tips' section. Each day's itinerary is presented as a vertical timeline of enhanced, visually distinct cards for activities. These cards contain brief summaries. Key locations are interactive, opening a modal with all the detailed textual information, addresses, and recommendations from the source report. This structure prioritizes immediate scannability on the main timeline while providing comprehensive details on demand, enhancing user understanding and engagement without cluttering the primary view. -->
+    <!-- Visualization & Content Choices: Report Info: Daily schedule, activities, and locations -> Goal: Inform/Organize -> Presentation: Vertical timeline with rich activity cards (HTML/Tailwind) on the main page, and detailed text-only modals for specific locations -> Interaction: Sticky navigation for quick section jumps; clickable cards/buttons to trigger modals for in-depth information -> Justification: The timeline visually represents the flow of the trip. Rich cards and modals allow for comprehensive information delivery without overwhelming the user initially. All placeholder images are removed for a cleaner, text-focused presentation, as requested. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #FFFBF5;
+            color: #4A4A4A;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -31px;
+            top: 12px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #C3B091;
+            border: 3px solid #FFFBF5;
+            z-index: 1;
+        }
+        .timeline-line {
+            position: absolute;
+            left: -22px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #EAE0D5;
+        }
+        .nav-button.active {
+            background-color: #A0522D;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #A0522D;
+            color: white;
+            border-radius: 50%;
+            padding: 10px 15px;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 20;
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0.9;
+        }
+        .scroll-to-top:hover {
+            opacity: 1;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="scroll-smooth">
+
+    <header class="bg-[#C3B091] text-white p-6 text-center shadow-md">
+        <h1 class="text-3xl md:text-5xl font-bold mb-2">🌿 日月潭南投親子三日遊 👨‍👩‍👧‍👦</h1>
+        <p class="text-lg md:text-xl">專為兩大一小與嬰兒量身打造的舒心旅程</p>
+    </header>
+
+    <nav id="navbar" class="sticky top-0 bg-[#FFFBF5]/90 backdrop-blur-sm z-10 shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex justify-center space-x-2 sm:space-x-4 overflow-x-auto">
+            <button data-target="day1" class="nav-button active text-xs sm:text-sm md:text-base px-3 py-2 sm:px-4 rounded-full font-semibold bg-[#EAE0D5] text-[#4A4A4A] hover:bg-[#A0522D] hover:text-white transition-colors duration-300 whitespace-nowrap">第一天</button>
+            <button data-target="day2" class="nav-button text-xs sm:text-sm md:text-base px-3 py-2 sm:px-4 rounded-full font-semibold bg-[#EAE0D5] text-[#4A4A4A] hover:bg-[#A0522D] hover:text-white transition-colors duration-300 whitespace-nowrap">第二天</button>
+            <button data-target="day3" class="nav-button text-xs sm:text-sm md:text-base px-3 py-2 sm:px-4 rounded-full font-semibold bg-[#EAE0D5] text-[#4A4A4A] hover:bg-[#A0522D] hover:text-white transition-colors duration-300 whitespace-nowrap">第三天</button>
+            <button data-target="tips" class="nav-button text-xs sm:text-sm md:text-base px-3 py-2 sm:px-4 rounded-full font-semibold bg-[#EAE0D5] text-[#4A4A4A] hover:bg-[#A0522D] hover:text-white transition-colors duration-300 whitespace-nowrap">旅行提醒</button>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 md:p-8">
+        <section id="introduction" class="mb-12 text-center bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold text-[#A0522D] mb-4">歡迎來到我的日月潭南投親子之旅規劃！</h2>
+            <p class="text-gray-700 leading-relaxed max-w-3xl mx-auto">
+                這份精心規劃的三日遊行程，是我專為有小小孩的家庭設計，旨在提供一個輕鬆愉快的探索體驗。
+                從台南永康出發，沿途欣賞台灣中部的美景，深入日月潭的湖光山色，
+                再到中興新村感受歷史的靜謐，最後在九九峰動物樂園與可愛動物親密互動。
+                我將確保旅程中每個環節都考慮到嬰幼兒的需求，讓您與家人共創難忘的回憶。
+            </p>
+            <div class="mt-6 text-sm text-gray-500 italic">
+                請注意：嬰兒餵食時間已納入考量，實際狀況請依寶寶作息為主。
+            </div>
+        </section>
+
+        <section id="day1" class="mb-12">
+            <h2 class="text-3xl font-bold text-[#A0522D] mb-8 border-b-2 border-[#EAE0D5] pb-3">第一天：台南永康 → 日月潭大淶閣 (週五)</h2>
+            <div class="relative pl-8">
+                <div class="timeline-line"></div>
+                <div class="space-y-10">
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">🚗 10:30 台南永康出發</h3>
+                        <p class="text-gray-700">從台南永康交流道輕鬆上國道三號（南二高）北上，開啟我的日月潭南投親子三日遊。一路上風景宜人，準備好享受美好的假期。</p>
+                    </div>
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">🍽️ 11:30 - 12:30 國道休息與午餐備案</h3>
+                        <p class="text-gray-700 mb-4">旅途中，您可以在國道三號上規模較大、設施完善的
+                            <button class="text-[#A0522D] font-semibold underline" data-modal-target="gukeng">古坑服務區</button> 稍作休息並享用午餐。這裡不僅環境寬敞舒適，還設有哺乳室和親子廁所，對有嬰幼兒的家庭非常友善。</p>
+                        <p class="text-gray-700">若想體驗在地風味，也可以考慮前往集集或水里，那裡有更多親子友善的餐廳選擇。</p>
+                    </div>
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">🏨 14:30 - 15:00 抵達日月潭大淶閣飯店辦理入住</h3>
+                        <p class="text-gray-700">抵達位於日月潭水社碼頭旁的
+                            <button class="text-[#A0522D] font-semibold underline" data-modal-target="daLaiGe">日月潭大淶閣飯店</button>。飯店地點極佳，內部裝潢典雅，許多房型都能欣賞到美麗的湖景。辦理入住後，您可以稍作休息，準備迎接日月潭的湖光山色。</p>
+                    </div>
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">🚴 15:30 - 16:30 傍晚日月潭自行車步道親子騎行</h3>
+                        <img src="https://gcp-obs.line-scdn.net/0hbkuE1lupPURIPCNEzu5CE3NqMTV7STlCMw4vPGxuMyExWX1FaAp1dWsgZnxjX2ZBc1txPj1vNiFnWHNCfAh1Jw" alt="日月潭自行車道風景" class="w-full h-auto rounded-md mb-4">
+                        <p class="text-gray-700">體驗被譽為「全球十大最美自行車道」之一的日月潭環潭自行車道。考量到有嬰幼兒，建議您選擇水社碼頭到向山遊客中心這段路程，約3公里，路面平坦、湖景優美且安全。水社碼頭旁有多家自行車租借店，可租親子協力車或加裝嬰兒座椅的協力車。</p>
+                        <p class="text-gray-700 mt-2 text-sm italic">小提醒：考量到11月初日落時間較早（約下午5點半左右），建議您提早開始騎行，並務必在天色變暗前結束，確保安全。</p>
+                    </div>
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">🌃 18:00 飯店晚餐或周邊用餐</h3>
+                        <p class="text-gray-700">您可選擇在日月潭大淶閣飯店內設的餐廳用餐，享受便利舒適的環境；或前往水社碼頭周邊，探索當地特色餐飲或西式簡餐，品嚐日月潭的美味。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="day2" class="mb-12">
+            <h2 class="text-3xl font-bold text-[#A0522D] mb-8 border-b-2 border-[#EAE0D5] pb-3">第二天：日月潭周邊 → 中興新村/半山夢工廠 → 草屯正巧文旅 (週六)</h2>
+            <div class="relative pl-8">
+                <div class="timeline-line"></div>
+                <div class="space-y-10">
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">☀️ 08:00 - 09:00 飯店享用早餐</h3>
+                        <p class="text-gray-700">在飯店悠閒享用豐盛的早餐，儲備一天的活力，準備迎接接下來的精彩行程。</p>
+                    </div>
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">🐸 09:30 - 11:00 前往九蛙疊像</h3>
+                        <p class="text-gray-700 mb-4">出發前往
+                            <button class="text-[#A0522D] font-semibold underline" data-modal-target="nineFrogs">九蛙疊像</button>，這裡是日月潭水位的趣味指標。隨著水位的漲落，疊羅漢的九隻青蛙會露出不同數量，非常有趣，五歲的孩子會對尋找青蛙感到好奇。</p>
+                        <p class="text-gray-700">步行約500公尺的平緩步道即可抵達，適合推嬰兒車。</p>
+                    </div>
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">🏞️ 11:30 - 12:30 日月潭周邊午餐</h3>
+                        <p class="text-gray-700">從九蛙疊像離開後，可以在伊達邵碼頭或水社碼頭周邊用餐。伊達邵有較多原住民風味餐飲與小吃，水社則選擇更多樣，總能找到合您口味的美食。</p>
+                    </div>
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">🌳🏛️ 14:00 - 17:00 中興新村 或 半山夢工廠 (擇一)</h3>
+                        <p class="text-gray-700">您可以選擇在充滿綠意與懷舊氛圍的
+                            <button class="text-[#A0522D] font-semibold underline" data-modal-target="zhongxing">中興新村</button> 漫遊，或是前往結合文化、創意與工藝的獨特場館
+                            <button class="text-[#A0522D] font-semibold underline" data-modal-target="banshan">半山夢工廠</button> 探索。請擇一前往，兩者皆能為您的旅程增添獨特的體驗。</p>
+                    </div>
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">? 17:30 抵達草屯正巧文旅辦理入住</h3>
+                        <p class="text-gray-700">抵達位於草屯的
+                            <button class="text-[#A0522D] font-semibold underline" data-modal-target="zhengQiao">草屯正巧文旅</button>，這是一間現代設計旅店，提供舒適的住宿環境。距離九九峰動物樂園和國道都較近，方便隔天行程。</p>
+                    </div>
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">🌃 18:30 草屯晚餐</h3>
+                        <p class="text-gray-700">草屯鎮上有許多在地小吃和特色餐廳，您可以請飯店櫃台推薦當地人氣美食，或使用導航尋找合適的用餐地點，品嚐在地風味。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="day3" class="mb-12">
+            <h2 class="text-3xl font-bold text-[#A0522D] mb-8 border-b-2 border-[#EAE0D5] pb-3">第三天：九九峰動物樂園 → 返回台南 (週日)</h2>
+            <div class="relative pl-8">
+                <div class="timeline-line"></div>
+                <div class="space-y-10">
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">☀️ 08:00 - 09:00 飯店享用早餐</h3>
+                        <p class="text-gray-700">在飯店享用豐盛的早餐後，整理行李並辦理退房手續，為第三天的行程做準備。</p>
+                    </div>
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">🦓 09:30 - 15:00 九九峰動物樂園探險</h3>
+                        <p class="text-gray-700 mb-4">前往南投近年開幕的大型動物主題樂園——
+                            <button class="text-[#A0522D] font-semibold underline" data-modal-target="jiujiu">九九峰動物樂園</button>。這裡佔地廣闊，擁有豐富的動物種類，包括許多珍奇鳥類、爬蟲類、可愛動物等。園區規劃了多條參觀動線，並設有兒童遊樂設施、互動體驗區和餐飲區，非常適合全家大小一同遊玩，讓孩子們近距離接觸動物、學習知識。</p>
+                        <p class="text-gray-700">園區內有平坦步道，方便推嬰兒車，也有休息區和餐飲部。</p>
+                    </div>
+                    <div class="timeline-item relative bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h3 class="text-xl font-bold mb-2">🚗 15:30 快樂賦歸</h3>
+                        <p class="text-gray-700">從九九峰動物樂園啟程，經由國道三號返回台南永康，預計車程約2.5-3小時。結束美好的日月潭南投親子之旅，帶著滿滿的回憶與家人一同回家。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="tips" class="mb-12">
+            <h2 class="text-3xl font-bold text-[#A0522D] mb-8 border-b-2 border-[#EAE0D5] pb-3">💡 旅行提醒</h2>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <ul class="list-disc list-inside space-y-4 text-gray-700 text-lg">
+                    <li><b>🚗 交通建議：</b>建議從台南永康出發，經由國道三號（南二高）北上，沿途會經過集集、水里，最終抵達日月潭，這條路線通常較為順暢便捷。</li>
+                    <li><b>🍼 嬰兒餵食時間：</b>請您特別留意，旅途中建議每隔四小時為寶寶餵食一次。您可以在國道服務區或行程中的餐廳停留時進行，實際狀況請依寶寶作息為主，彈性調整。</li>
+                    <li><b>👶 嬰兒用品準備：</b>務必準備充足的尿布、濕紙巾、換洗衣物、奶粉/副食品，以及寶寶喜歡的安撫玩具，以備不時之需，確保寶寶旅途舒適。</li>
+                    <li><b>☀️ 防曬與防蚊措施：</b>日月潭和南投的戶外活動較多，建議您和家人務必做好防曬（如攜帶帽子、太陽眼鏡、塗抹防曬乳）和防蚊準備（如攜帶防蚊液、穿著長袖衣物），以避免曬傷或蚊蟲叮咬。</li>
+                    <li><b>👚 備用衣物：</b>考量到孩子們活動量較大，容易出汗或弄髒衣物，建議多帶幾套備用衣物，以便隨時更換，保持乾爽舒適。</li>
+                    <li><b>🛣️ 交通狀況：</b>週末下午國道三號部分路段可能會有壅塞情形，建議您可以利用手機導航應用程式隨時查看即時路況，以便避開車潮，節省行車時間。</li>
+                    <li><b>⏰ 行程彈性調整：</b>這份行程是為您量身打造的建議參考，您可以根據孩子們的作息和實際狀態，隨時彈性調整各景點的停留時間，讓整個旅程更加輕鬆愉快，盡情享受美好的家庭時光。</li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <button id="scrollToTopBtn" class="scroll-to-top">⬆️</button>
+
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden items-center justify-center p-4">
+        <div id="modal-content" class="bg-white w-full md:max-w-2xl mx-auto rounded-lg shadow-lg p-6 relative max-h-[90vh] overflow-y-auto">
+            <button id="modal-close" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+            <h3 id="modal-title" class="text-2xl font-bold text-[#A0522D] mb-4 border-b pb-2"></h3>
+            <div id="modal-body" class="text-gray-700 space-y-4 leading-relaxed"></div>
+        </div>
+    </div>
+
+    <script>
+        const modalData = {
+            gukeng: {
+                title: '📍 古坑服務區 (北上) 與午餐備案',
+                content: `<p>國道三號古坑服務區（北上）是途中規模較大、設施完善的休息點。這裡環境寬敞舒適，特別設有哺乳室和親子廁所，對有嬰幼兒的家庭非常友善。服務區內提供多樣化的餐飲選擇，從便利商店、速食到地方小吃、咖啡廳應有盡有，方便您和家人在這裡輕鬆用餐並稍作休息。</p>
+                         <h4 class="font-semibold mt-4 text-xl text-[#A0522D]">午餐備案：</h4>
+                         <ul class="list-disc list-inside space-y-2">
+                            <li><b class="text-[#6B8E23]">集集8隻貓：</b>一間以貓咪為主題的溫馨咖啡餐館，提供簡餐、輕食和飲品。其放鬆的氛圍和可愛的貓咪主題對大孩子會有吸引力，空間也相對寬敞。<br><b>地址:</b> 南投縣集集鎮民生路162號</li>
+                            <li><b class="text-[#6B8E23]">水里二坪冰店附近餐飲：</b>水里二坪冰店是當地有名的小吃，周邊也有一些在地小吃店可供選擇。您可以體驗在地風味，快速解決午餐。</li>
+                         </ul>`
+            },
+            daLaiGe: {
+                title: '🏨 日月潭大淶閣飯店',
+                content: `<p>日月潭大淶閣飯店位於日月潭水社碼頭旁，地理位置極佳，是觀賞湖景的絕佳地點。飯店內部裝潢典雅舒適，許多房型都能欣賞到美麗的湖景。飯店提供周到且貼心的服務，如果有嬰兒用品租借或其他協助需求，都可以直接向飯店洽詢，讓您的住宿體驗更加便利無憂。</p>
+                         <p class="mt-2"><b>推薦房型：</b>悅景客房(湖景)(雙人房)(一大床)</p>
+                         <p class="mt-2"><b>地址：</b>南投縣魚池鄉水社村中山路101號</p>`
+            },
+            nineFrogs: {
+                title: '🐸 九蛙疊像',
+                content: `<p>九蛙疊像位於日月潭伊達邵附近，是日月潭水位指標的獨特象徵。隨著日月潭水位的漲落，這九隻疊羅漢的青蛙會露出不同數量，非常有趣，五歲的孩子會對尋找青蛙感到好奇和興奮。這不僅是一個觀景點，也是一個了解日月潭水文變化的生動教材。</p>
+                         <h4 class="font-semibold mt-4 text-xl text-[#A0522D]">如何前往：</h4>
+                         <ul class="list-disc list-inside space-y-2">
+                            <li><b>開車順時針：</b>從水社方向開車沿環潭公路順時針方向行駛，經過伊達邵後，留意路邊的停車格。</li>
+                            <li><b>停車地點：</b>可導航至 Plus Code: VW5Q+2W 日月村 南投縣魚池鄉。請注意，這裡路邊停車格不多，若遇到假日可能需要等待。</li>
+                            <li><b>步行前往：</b>停好車後，需步行約500公尺的平緩步道才能抵達九蛙疊像觀景平台，這段步道非常適合推嬰兒車，沿途風景宜人。</li>
+                            <li><b>替代方案：</b>若路邊停車格已滿，可以考慮將車停放在日月潭纜車站（距離九蛙疊像約1.5公里），再沿著步道步行過去。這段路程會稍長，可視孩子體力與推車的方便性來評估。</li>
+                         </ul>`
+            },
+            zhongxing: {
+                title: '🌳 中興新村',
+                content: `<p>中興新村曾是台灣省政府的所在地，擁有獨特的棋盤式街道規劃、綠意盎然的林蔭大道和充滿歷史感的眷村建築風格。這裡的步調緩慢，綠地廣闊，非常適合親子散步，您可以讓孩子在寬闊的大操場上盡情跑跳、放風箏，感受歷史氛圍的同時享受戶外樂趣。村內有許多老樹和綠色隧道，是散步或簡單騎自行車的絕佳場所。</p>
+                        <p class="mt-2">近年來，許多文創小店、咖啡廳和甜點店陸續進駐，為這個老村落注入了新的活力，您在漫步時常會有意想不到的發現，可以細細品味這裡的藝文氣息。</p>
+                        <h4 class="font-semibold mt-4 text-xl text-[#A0522D]">推薦店家與餐廳：</h4>
+                         <ul class="list-disc list-inside space-y-2">
+                            <li><b class="text-[#6B8E23]">小憩空間：</b>環境雅緻，提供精緻的簡餐和下午茶，氛圍輕鬆舒適，適合家庭用餐。</li>
+                            <li><b class="text-[#6B8E23]">松濤園：</b>隱身於老樹林中，提供手工製作的甜點和風味獨特的咖啡，是一個氛圍清幽的休憩點。</li>
+                            <li><b class="text-[#6B8E23]">正典點心店：</b>當地知名的傳統麵食小吃店，以平價且美味的麵食聞名，適合想品嚐在地簡單風味的家庭。</li>
+                            <li><b class="text-[#6B8E23]">其他特色小店：</b>中興新村內還有許多特色文創小店、獨立書店和工藝品店，您可以隨意逛逛，發現獨特的手作商品和文創小物。</li>
+                         </ul>
+                         <p class="mt-4">更多介紹請參考：<a href="https://bobbyfun.tw/2024-01-01-2607/" target="_blank" class="text-[#A0522D] underline hover:text-[#C3B091]">中興新村網誌介紹</a></p>`
+            },
+            banshan: {
+                title: '🏛️ 半山夢工廠',
+                content: `<p>半山夢工廠是一座位於南投的獨特文化創意園區，以其壯觀的木構建築和結合文化、創意、工藝的展覽而聞名。園區內主體建築採用巨大的環形木構設計，營造出獨特的空間感，非常適合大小朋友一同探索。</p>
+                         <p class="mt-2">這裡不定期舉辦各種主題展覽、手作體驗課程和藝文活動，是個兼具教育與休憩功能的好地方。您可以在這裡了解木藝文化、欣賞工藝品，並參與互動體驗，為旅程增添豐富的人文色彩。</p>
+                         <p class="mt-2"><b>地址：</b>南投縣南投市工業南五路6號</p>
+                         <p class="mt-4">更多介紹請參考：<a href="https://www.welcometw.com/%E6%A8%B樹%E5%BE%B7%E5%8D%8A%E5%B1%B1%E5%A4%A2%E5%B7%A5%E5%BB%A0/" target="_blank" class="text-[#A0522D] underline hover:text-[#C3B091]">半山夢工廠網誌介紹</a></p>`
+            },
+            zhengQiao: {
+                title: '🏨 草屯正巧文旅',
+                content: `<p>草屯正巧文旅是一間位於南投草屯鎮的現代設計旅店，提供簡約而舒適的住宿環境。其地理位置優越，距離九九峰動物樂園和國道都較近，對於隔天規劃前往動物樂園或需快速上國道的家庭來說，提供了極大的交通便利性。飯店的設計風格簡潔，能讓您在旅途中獲得良好的休憩。</p>
+                         <p class="mt-2"><b>設施特色：</b>現代化設計、舒適客房、鄰近主要交通幹道。</p>`
+            },
+            jiujiu: {
+                title: '🦓 九九峰動物樂園',
+                content: `<p>九九峰動物樂園是南投近年來開幕的大型動物主題樂園，佔地廣闊，擁有豐富的動物種類，包括許多珍奇鳥類、色彩斑斕的爬蟲類以及各種可愛的溫馴動物。園區規劃了多條清晰的參觀動線，並設有專為兒童設計的遊樂設施、充滿趣味的互動體驗區，以及方便的餐飲區。這裡非常適合全家大小一同遊玩，不僅能讓孩子們近距離接觸和認識動物，也能在遊樂中學習知識。</p>
+                         <p class="mt-2">園區內有平坦步道，方便推嬰兒車，也有舒適的休息區和多樣化的餐飲部，讓您能輕鬆地享受一整天的動物探索之旅。</p>
+                         <h4 class="font-semibold mt-4 text-xl text-[#A0522D]">營業時間：</h4>
+                         <ul class="list-disc list-inside space-y-2">
+                             <li><b>11月－5月：</b>平日 09:00-17:00，假日 09:00-17:50</li>
+                             <li><b>6月－10月：</b>平日 09:00-17:30，假日 09:00-18:00</li>
+                             <li>星期一休館。</li>
+                         </ul>
+                         <h4 class="font-semibold mt-4 text-xl text-[#A0522D]">票價：</h4>
+                         <ul class="list-disc list-inside space-y-2">
+                             <li><b>全票 (18歲以上成人)：</b> NT$ 560</li>
+                             <li><b>學生票 (12歲以上持學生證)：</b> NT$ 360</li>
+                             <li><b>3-12歲兒童 / 65歲以上老人 / 身心障礙者 (及陪同人) / 草屯鎮民：</b> NT$ 280</li>
+                             <li><b>65歲以上南投縣縣民：</b> NT$ 200</li>
+                             <li><b>3歲以下兒童 / 100公分以下兒童：</b> 免費</li>
+                             <li><b>星光票 (16:30後入園，最晚21:00出園)：</b> NT$ 200</li>
+                             <li><b>注意事項：</b>門票費用僅包含觀賞鳥園和小動物，其他遊樂設施如碰碰車、馬車、軌道火車等需另外收費。</li>
+                         </ul>
+                         <p class="mt-4">更多詳細票價與最新活動請參考官方網站或購票平台。</p>
+                         <p class="mt-2"><b>地址：</b>南投縣草屯鎮富寮里富頂路一段1112巷120號</p>`
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const navButtons = document.querySelectorAll('.nav-button');
+            const sections = document.querySelectorAll('main section');
+            const modal = document.getElementById('modal');
+            const modalClose = document.getElementById('modal-close');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+
+            function setActiveNav(targetId) {
+                navButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.target === targetId);
+                });
+            }
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.dataset.target;
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        const offset = document.getElementById('navbar').offsetHeight;
+                        const elementPosition = targetSection.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - offset;
+                        
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        setActiveNav(entry.target.id);
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => {
+                if (section.id !== 'introduction') { // Exclude introduction section from observer
+                    observer.observe(section);
+                }
+            });
+
+            document.querySelectorAll('[data-modal-target]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const target = button.dataset.modalTarget;
+                    const data = modalData[target];
+                    if (data) {
+                        modalTitle.textContent = data.title;
+                        let modalContent = '';
+                        // Removed image rendering logic from modal
+                        modalContent += data.content;
+                        modalBody.innerHTML = modalContent;
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                    }
+                });
+            });
+
+            function closeModal() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+
+            modalClose.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Scroll to top button logic
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) { // Show button after scrolling down 300px
+                    scrollToTopBtn.style.display = 'block';
+                } else {
+                    scrollToTopBtn.style.display = 'none';
+                }
+            });
+
+            scrollToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
