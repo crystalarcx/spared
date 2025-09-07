@@ -602,21 +602,21 @@
         <div class="timeline-section">
             <h3 class="section-title">📈 互動式時間軸圖表</h3>
             <div class="timeline-container">
-                <div class="timeline-chart" id="timelineChart">
+                <div class="timeline-chart">
                     <div class="y-axis">
                         <div class="y-label dad-label">👨 爸爸年齡</div>
                         <div class="y-label mom-label">👩 媽媽年齡</div>
                         <div class="y-label orange-label">🍊 橘子哥哥</div>
                         <div class="y-label luna-label">🌙 Luna妹妹</div>
                     </div>
-                    <div class="chart-area" id="chartArea">
+                    <div class="chart-area">
                         <div class="timeline-slider-container">
                             <input type="range" id="timelineSlider" class="timeline-slider" 
                                    min="116" max="133" value="116" 
                                    oninput="updateTimeline(this.value)">
                             <div class="year-markers" id="yearMarkers"></div>
                         </div>
-                        <div class="data-display" id="dataDisplay">
+                        <div class="data-display">
                             <div class="data-row dad-row">
                                 <span class="data-label">👨 老皮(爸爸)：</span>
                                 <span class="data-value" id="dadAgeDisplay">41歲</span>
@@ -662,33 +662,28 @@
             university: '大學'
         };
         
-        // 父母出生年
         const parents = {
             dad: { name: '老皮(爸爸)', birthYear: 76 },
             mom: { name: 'Rita(媽媽)', birthYear: 78 }
         };
         
-        // 基準資料（116學年度）
         const baseYear = 116;
-        const baseOrangeGrade = { school: 'elementary', grade: 0 }; // 國小一年級
-        const baseLunaGrade = { school: 'kindergarten', grade: 0 }; // 幼幼班
+        const baseOrangeGrade = { school: 'elementary', grade: 0 };
+        const baseLunaGrade = { school: 'kindergarten', grade: 0 };
         
-        // 初始化學年度選單
         function initAcademicYearSelect() {
             const select = document.getElementById('academicYearSelect');
             for (let year = 116; year <= 133; year++) {
                 const option = document.createElement('option');
                 option.value = year;
-                option.textContent = `${year}學年度`;
+                option.textContent = year + '學年度';
                 select.appendChild(option);
             }
         }
         
-        // 初始化年份標記
         function initYearMarkers() {
             const markersContainer = document.getElementById('yearMarkers');
             const years = [116, 119, 122, 125, 128, 131, 133];
-            
             years.forEach(year => {
                 const marker = document.createElement('span');
                 marker.textContent = year;
@@ -696,25 +691,23 @@
             });
         }
         
-        // 設定學校按鈕事件
         function setupSchoolButtons() {
             const orangeButtons = document.getElementById('orangeSchoolButtons');
             const lunaButtons = document.getElementById('lunaSchoolButtons');
             
-            orangeButtons.addEventListener('click', (e) => {
+            orangeButtons.addEventListener('click', function(e) {
                 if (e.target.classList.contains('school-btn')) {
                     handleSchoolSelection('orange', e.target.dataset.school, e.target);
                 }
             });
             
-            lunaButtons.addEventListener('click', (e) => {
+            lunaButtons.addEventListener('click', function(e) {
                 if (e.target.classList.contains('school-btn')) {
                     handleSchoolSelection('luna', e.target.dataset.school, e.target);
                 }
             });
         }
         
-        // 處理學校選擇
         function handleSchoolSelection(child, school, buttonElement) {
             const buttonsContainer = child === 'orange' ? 
                 document.getElementById('orangeSchoolButtons') : 
@@ -723,54 +716,43 @@
                 document.getElementById('orangeGradeButtons') : 
                 document.getElementById('lunaGradeButtons');
             
-            // 重置按鈕狀態
-            buttonsContainer.querySelectorAll('.school-btn').forEach(btn => {
+            buttonsContainer.querySelectorAll('.school-btn').forEach(function(btn) {
                 btn.classList.remove('active');
             });
             
-            // 設定選中狀態
             buttonElement.classList.add('active');
             
-            // 隱藏結果
             document.getElementById('gradeResults').style.display = 'none';
             document.getElementById('yearResults').style.display = 'none';
             
-            // 顯示年級按鈕
             showGradeButtons(gradeContainer, school, child);
         }
         
-        // 顯示年級按鈕
         function showGradeButtons(container, school, child) {
             container.innerHTML = '';
             container.style.display = 'flex';
             
-            gradeData[school].forEach((grade, index) => {
+            gradeData[school].forEach(function(grade, index) {
                 const btn = document.createElement('button');
                 btn.className = 'grade-btn';
                 btn.textContent = grade;
-                btn.onclick = () => selectGrade(child, school, index);
+                btn.onclick = function() {
+                    selectGrade(child, school, index);
+                };
                 container.appendChild(btn);
             });
         }
         
-        // 選擇年級並立即查詢
         function selectGrade(child, school, gradeIndex) {
-            // 計算對應的學年度
             const academicYear = calculateAcademicYear(child, school, gradeIndex);
-            
-            // 計算另一個孩子的年級
             const otherChild = child === 'orange' ? 'luna' : 'orange';
             const otherGrade = calculateOtherChildGrade(otherChild, academicYear);
-            
-            // 計算父母年齡
             const dadAge = calculateParentAge(parents.dad.birthYear, academicYear);
             const momAge = calculateParentAge(parents.mom.birthYear, academicYear);
             
-            // 顯示結果
             displayGradeResults(child, school, gradeIndex, academicYear, otherChild, otherGrade, dadAge, momAge);
         }
         
-        // 根據學年度查詢
         function queryByAcademicYear() {
             const academicYear = parseInt(document.getElementById('academicYearSelect').value);
             
@@ -779,60 +761,62 @@
                 return;
             }
             
-            // 隱藏年級選擇的結果
             document.getElementById('gradeResults').style.display = 'none';
             
-            // 計算該學年度時兩個孩子的年級
             const yearDiff = academicYear - baseYear;
             const orangeGrade = calculateGradeByYearDiff(baseOrangeGrade, yearDiff);
             const lunaGrade = calculateGradeByYearDiff(baseLunaGrade, yearDiff);
-            
-            // 計算父母年齡
             const dadAge = calculateParentAge(parents.dad.birthYear, academicYear);
             const momAge = calculateParentAge(parents.mom.birthYear, academicYear);
             
-            // 更新顯示
-            document.getElementById('currentYearDisplay').textContent = `📅 ${academicYear}學年度`;
-            document.getElementById('dadAgeDisplay').textContent = `${dadAge}歲`;
-            document.getElementById('momAgeDisplay').textContent = `${momAge}歲`;
-            document.getElementById('orangeGradeDisplay').textContent = `${orangeGrade.school}${orangeGrade.grade ? ' ' + orangeGrade.grade : ''}`;
-            document.getElementById('lunaGradeDisplay').textContent = `${lunaGrade.school}${lunaGrade.grade ? ' ' + lunaGrade.grade : ''}`;
+            displayYearResults(academicYear, orangeGrade, lunaGrade, dadAge, momAge);
         }
         
-        // 計算學年度（根據選擇的孩子和年級推算）
+        function updateTimeline(year) {
+            const academicYear = parseInt(year);
+            
+            document.getElementById('gradeResults').style.display = 'none';
+            document.getElementById('yearResults').style.display = 'none';
+            
+            const yearDiff = academicYear - baseYear;
+            const orangeGrade = calculateGradeByYearDiff(baseOrangeGrade, yearDiff);
+            const lunaGrade = calculateGradeByYearDiff(baseLunaGrade, yearDiff);
+            const dadAge = calculateParentAge(parents.dad.birthYear, academicYear);
+            const momAge = calculateParentAge(parents.mom.birthYear, academicYear);
+            
+            document.getElementById('currentYearDisplay').textContent = '📅 ' + academicYear + '學年度';
+            document.getElementById('dadAgeDisplay').textContent = dadAge + '歲';
+            document.getElementById('momAgeDisplay').textContent = momAge + '歲';
+            document.getElementById('orangeGradeDisplay').textContent = orangeGrade.school + (orangeGrade.grade ? ' ' + orangeGrade.grade : '');
+            document.getElementById('lunaGradeDisplay').textContent = lunaGrade.school + (lunaGrade.grade ? ' ' + lunaGrade.grade : '');
+        }
+        
         function calculateAcademicYear(child, school, gradeIndex) {
             const schoolOrder = ['kindergarten', 'elementary', 'junior', 'senior', 'university'];
             const schoolSizes = [4, 6, 3, 3, 4];
             
-            // 計算從基準年級到選擇年級的年數差
             let yearDiff = 0;
             
             if (child === 'orange') {
-                // 以橘子哥哥為基準計算
                 const baseSchoolIndex = schoolOrder.indexOf(baseOrangeGrade.school);
                 const selectedSchoolIndex = schoolOrder.indexOf(school);
                 
-                // 計算學校間的年級差
                 if (selectedSchoolIndex > baseSchoolIndex) {
-                    // 升級到更高學校
                     yearDiff = schoolSizes[baseSchoolIndex] - baseOrangeGrade.grade;
                     for (let i = baseSchoolIndex + 1; i < selectedSchoolIndex; i++) {
                         yearDiff += schoolSizes[i];
                     }
                     yearDiff += gradeIndex;
                 } else if (selectedSchoolIndex < baseSchoolIndex) {
-                    // 降級到更低學校
                     yearDiff = -(baseOrangeGrade.grade + 1);
                     for (let i = selectedSchoolIndex + 1; i < baseSchoolIndex; i++) {
                         yearDiff -= schoolSizes[i];
                     }
                     yearDiff -= (schoolSizes[selectedSchoolIndex] - gradeIndex - 1);
                 } else {
-                    // 同一學校
                     yearDiff = gradeIndex - baseOrangeGrade.grade;
                 }
             } else {
-                // 以Luna妹妹為基準計算
                 const baseSchoolIndex = schoolOrder.indexOf(baseLunaGrade.school);
                 const selectedSchoolIndex = schoolOrder.indexOf(school);
                 
@@ -856,15 +840,12 @@
             return baseYear + yearDiff;
         }
         
-        // 計算另一個孩子的年級
         function calculateOtherChildGrade(child, academicYear) {
             const yearDiff = academicYear - baseYear;
             const baseGrade = child === 'orange' ? baseOrangeGrade : baseLunaGrade;
-            
             return calculateGradeByYearDiff(baseGrade, yearDiff);
         }
         
-        // 根據年數差計算年級
         function calculateGradeByYearDiff(baseGrade, yearDiff) {
             const schoolOrder = ['kindergarten', 'elementary', 'junior', 'senior', 'university'];
             const schoolSizes = [4, 6, 3, 3, 4];
@@ -872,7 +853,6 @@
             let currentSchoolIndex = schoolOrder.indexOf(baseGrade.school);
             let currentGradeIndex = baseGrade.grade + yearDiff;
             
-            // 處理年級進位
             while (currentGradeIndex >= schoolSizes[currentSchoolIndex]) {
                 currentGradeIndex -= schoolSizes[currentSchoolIndex];
                 currentSchoolIndex++;
@@ -882,7 +862,6 @@
                 }
             }
             
-            // 處理年級退位
             while (currentGradeIndex < 0) {
                 currentSchoolIndex--;
                 if (currentSchoolIndex < 0) {
@@ -897,143 +876,74 @@
             };
         }
         
-        // 計算父母年齡
         function calculateParentAge(birthYear, academicYear) {
             const currentYear = academicYear + 1911 + 1;
             const age = currentYear - (birthYear + 1911);
             return age;
         }
         
-        // 顯示年級選擇結果
         function displayGradeResults(selectedChild, selectedSchool, selectedGradeIndex, academicYear, otherChild, otherGrade, dadAge, momAge) {
             const resultsDiv = document.getElementById('gradeResults');
             const contentDiv = document.getElementById('gradeResultContent');
             
-            // 隱藏學年度查詢的結果
             document.getElementById('yearResults').style.display = 'none';
             
             const selectedChildName = selectedChild === 'orange' ? '🍊 橘子哥哥' : '🌙 Luna妹妹';
             const otherChildName = otherChild === 'orange' ? '🍊 橘子哥哥' : '🌙 Luna妹妹';
             const selectedGradeName = gradeData[selectedSchool][selectedGradeIndex];
             
-            contentDiv.innerHTML = `
-                <div class="academic-year-display">
-                    📅 ${academicYear}學年度
-                </div>
-                
-                <div class="result-item">
-                    <h4>${selectedChildName} (您的選擇)</h4>
-                    <p>${schoolNames[selectedSchool]} ${selectedGradeName}</p>
-                </div>
-                
-                <div class="result-item">
-                    <h4>${otherChildName}</h4>
-                    <p>${otherGrade.school}${otherGrade.grade ? ' ' + otherGrade.grade : ''}</p>
-                </div>
-                
-                <div class="parent-ages">
-                    <div class="parent-age">
-                        <h4>👨 ${parents.dad.name}</h4>
-                        <p>${dadAge}歲</p>
-                    </div>
-                    <div class="parent-age">
-                        <h4>👩 ${parents.mom.name}</h4>
-                        <p>${momAge}歲</p>
-                    </div>
-                </div>
-            `;
+            contentDiv.innerHTML = '<div class="academic-year-display">📅 ' + academicYear + '學年度</div>' +
+                '<div class="result-item"><h4>' + selectedChildName + ' (您的選擇)</h4><p>' + schoolNames[selectedSchool] + ' ' + selectedGradeName + '</p></div>' +
+                '<div class="result-item"><h4>' + otherChildName + '</h4><p>' + otherGrade.school + (otherGrade.grade ? ' ' + otherGrade.grade : '') + '</p></div>' +
+                '<div class="parent-ages">' +
+                '<div class="parent-age"><h4>👨 ' + parents.dad.name + '</h4><p>' + dadAge + '歲</p></div>' +
+                '<div class="parent-age"><h4>👩 ' + parents.mom.name + '</h4><p>' + momAge + '歲</p></div>' +
+                '</div>';
             
             resultsDiv.style.display = 'block';
             resultsDiv.scrollIntoView({ behavior: 'smooth' });
         }
         
-        // 顯示學年度查詢結果
         function displayYearResults(academicYear, orangeGrade, lunaGrade, dadAge, momAge) {
             const resultsDiv = document.getElementById('yearResults');
             const contentDiv = document.getElementById('yearResultContent');
             
-            contentDiv.innerHTML = `
-                <div class="academic-year-display">
-                    📅 ${academicYear}學年度
-                </div>
-                
-                <div class="result-item">
-                    <h4>🍊 橘子哥哥</h4>
-                    <p>${orangeGrade.school}${orangeGrade.grade ? ' ' + orangeGrade.grade : ''}</p>
-                </div>
-                
-                <div class="result-item">
-                    <h4>🌙 Luna妹妹</h4>
-                    <p>${lunaGrade.school}${lunaGrade.grade ? ' ' + lunaGrade.grade : ''}</p>
-                </div>
-                
-                <div class="parent-ages">
-                    <div class="parent-age">
-                        <h4>👨 ${parents.dad.name}</h4>
-                        <p>${dadAge}歲</p>
-                    </div>
-                    <div class="parent-age">
-                        <h4>👩 ${parents.mom.name}</h4>
-                        <p>${momAge}歲</p>
-                    </div>
-                </div>
-            `;
+            contentDiv.innerHTML = '<div class="academic-year-display">📅 ' + academicYear + '學年度</div>' +
+                '<div class="result-item"><h4>🍊 橘子哥哥</h4><p>' + orangeGrade.school + (orangeGrade.grade ? ' ' + orangeGrade.grade : '') + '</p></div>' +
+                '<div class="result-item"><h4>🌙 Luna妹妹</h4><p>' + lunaGrade.school + (lunaGrade.grade ? ' ' + lunaGrade.grade : '') + '</p></div>' +
+                '<div class="parent-ages">' +
+                '<div class="parent-age"><h4>👨 ' + parents.dad.name + '</h4><p>' + dadAge + '歲</p></div>' +
+                '<div class="parent-age"><h4>👩 ' + parents.mom.name + '</h4><p>' + momAge + '歲</p></div>' +
+                '</div>';
             
             resultsDiv.style.display = 'block';
             resultsDiv.scrollIntoView({ behavior: 'smooth' });
         }
         
-        // 重置年級選擇
         function resetGradeSelection() {
-            // 重置所有按鈕狀態
-            document.querySelectorAll('.school-btn, .grade-btn').forEach(btn => {
+            document.querySelectorAll('.school-btn, .grade-btn').forEach(function(btn) {
                 btn.classList.remove('active');
             });
             
-            // 隱藏年級按鈕
-            document.querySelectorAll('.grade-buttons').forEach(container => {
+            document.querySelectorAll('.grade-buttons').forEach(function(container) {
                 container.style.display = 'none';
                 container.innerHTML = '';
             });
             
-            // 隱藏年級選擇的結果
             document.getElementById('gradeResults').style.display = 'none';
         }
         
-        // 重置學年度選擇
         function resetYearSelection() {
             document.getElementById('academicYearSelect').value = '';
             document.getElementById('yearResults').style.display = 'none';
         }
         
-        // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
             setupSchoolButtons();
             initAcademicYearSelect();
             initYearMarkers();
-            updateTimeline(116); // 初始化時間軸顯示
+            updateTimeline(116);
         });
     </script>
 </body>
-</html>naGrade, yearDiff);
-            
-            // 計算父母年齡
-            const dadAge = calculateParentAge(parents.dad.birthYear, academicYear);
-            const momAge = calculateParentAge(parents.mom.birthYear, academicYear);
-            
-            // 顯示結果
-            displayYearResults(academicYear, orangeGrade, lunaGrade, dadAge, momAge);
-        }
-        
-        // 更新時間軸顯示
-        function updateTimeline(year) {
-            const academicYear = parseInt(year);
-            
-            // 隱藏其他結果
-            document.getElementById('gradeResults').style.display = 'none';
-            document.getElementById('yearResults').style.display = 'none';
-            
-            // 計算該學年度時兩個孩子的年級
-            const yearDiff = academicYear - baseYear;
-            const orangeGrade = calculateGradeByYearDiff(baseOrangeGrade, yearDiff);
-            const lunaGrade = calculateGradeByYearDiff(baseLu
+</html>
