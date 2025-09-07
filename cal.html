@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>家庭年齡與年級計算器</title>
+    <title>橘子哥哥與Luna妹妹年級計算器</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         body {
@@ -19,165 +20,284 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
+            background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            padding: 30px;
         }
 
         .header {
-            background: linear-gradient(45deg, #ff6b6b, #ffa500);
-            color: white;
             text-align: center;
-            padding: 30px;
+            margin-bottom: 30px;
         }
 
         .header h1 {
-            font-size: 2.2em;
+            color: #667eea;
+            font-size: 2.5em;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         .header p {
+            color: #666;
             font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .content {
-            padding: 40px;
         }
 
         .input-section {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            padding: 25px;
             border-radius: 15px;
-            padding: 30px;
             margin-bottom: 30px;
-            color: white;
-        }
-
-        .input-section h2 {
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 1.5em;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
         .input-group {
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+            gap: 20px;
             align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
         }
 
-        label {
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .section-title {
             font-weight: bold;
+            color: white;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9em;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+            transform: scale(1.05);
+        }
+
+        .school-section-btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            border-radius: 25px;
+            margin: 5px;
+        }
+
+        .school-section-btn:hover {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .school-section-btn.active {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+        }
+
+        .grade-section {
+            display: none;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+
+        .grade-section.show {
+            display: flex;
+        }
+
+        select {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             min-width: 120px;
         }
 
-        select, input {
-            padding: 12px 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            flex: 1;
-            min-width: 200px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        select:focus, input:focus {
+        select:focus {
             outline: none;
-            transform: scale(1.02);
-            transition: transform 0.2s;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.3);
         }
 
         .results-section {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            border-radius: 15px;
-            padding: 30px;
-            color: white;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
-        .results-section h2 {
+        .person-card {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            padding: 25px;
+            border-radius: 15px;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .person-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .person-card.luna {
+            background: linear-gradient(45deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .person-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
             text-align: center;
-            margin-bottom: 25px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-weight: bold;
+        }
+
+        .info-value {
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .parents-section {
+            background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .parents-section h3 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
             font-size: 1.5em;
         }
 
-        .family-grid {
+        .parents-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
         }
 
-        .family-member {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: transform 0.3s ease;
+        .parent-info {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .family-member:hover {
-            transform: translateY(-5px);
-        }
-
-        .family-member h3 {
-            font-size: 1.3em;
-            margin-bottom: 15px;
-            color: #fff;
-        }
-
-        .family-member .age {
-            font-size: 2em;
+        .parent-name {
             font-weight: bold;
-            margin-bottom: 10px;
-            color: #ffeb3b;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 1.2em;
         }
 
-        .family-member .grade {
-            font-size: 1.1em;
-            background: rgba(255, 255, 255, 0.3);
-            padding: 8px 12px;
+        .age-highlight {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
             border-radius: 20px;
-            display: inline-block;
-            margin-top: 10px;
+            font-weight: bold;
         }
 
-        .birthday {
-            font-size: 0.9em;
-            opacity: 0.8;
-            margin-top: 5px;
+        .chart-section {
+            background: linear-gradient(45deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
-        .note {
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        .chart-section h3 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: white;
             border-radius: 10px;
             padding: 20px;
-            margin-top: 20px;
-            color: #333;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .note h3 {
-            color: #d35400;
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .input-group {
-                flex-direction: column;
-                align-items: stretch;
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .school-section-btn {
+                font-size: 0.9em;
+                padding: 8px 16px;
+                margin: 3px;
+            }
+            
+            .btn {
+                font-size: 0.8em;
+                padding: 6px 12px;
             }
 
-            label {
-                min-width: auto;
+            select {
+                min-width: 100%;
             }
 
-            .family-grid {
-                grid-template-columns: 1fr;
+            .chart-container {
+                height: 400px;
+                padding: 10px;
             }
         }
     </style>
@@ -185,237 +305,603 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏠 家庭年齡與年級計算器</h1>
-            <p>輸入任一孩子的年級，計算全家的年齡與年級</p>
+            <h1>🍊 橘子哥哥與Luna妹妹年級計算器 🌙</h1>
+            <p>輸入任一人的年級，自動計算另一人的年級與全家年齡</p>
         </div>
 
-        <div class="content">
-            <div class="input-section">
-                <h2>📚 設定年級資訊</h2>
-                <div class="input-group">
-                    <label for="childSelect">選擇孩子：</label>
-                    <select id="childSelect">
-                        <option value="orange">🍊 橘子哥哥</option>
-                        <option value="luna">🌙 Luna妹妹</option>
-                    </select>
-                </div>
-                
-                <div class="input-group">
-                    <label for="gradeSelect">年級：</label>
-                    <select id="gradeSelect">
-                        <option value="">請選擇年級</option>
-                        <option value="幼幼班">幼幼班 (滿2歲)</option>
-                        <option value="小班">小班 (滿3歲)</option>
-                        <option value="中班">中班 (滿4歲)</option>
-                        <option value="大班">大班 (滿5歲)</option>
-                        <option value="國小一年級">國小一年級</option>
-                        <option value="國小二年級">國小二年級</option>
-                        <option value="國小三年級">國小三年級</option>
-                        <option value="國小四年級">國小四年級</option>
-                        <option value="國小五年級">國小五年級</option>
-                        <option value="國小六年級">國小六年級</option>
-                        <option value="國中一年級">國中一年級</option>
-                        <option value="國中二年級">國中二年級</option>
-                        <option value="國中三年級">國中三年級</option>
-                        <option value="高中一年級">高中一年級</option>
-                        <option value="高中二年級">高中二年級</option>
-                        <option value="高中三年級">高中三年級</option>
-                        <option value="大學一年級">大學一年級</option>
-                        <option value="大學二年級">大學二年級</option>
-                        <option value="大學三年級">大學三年級</option>
-                        <option value="大學四年級">大學四年級</option>
-                    </select>
+        <div class="input-section">
+            <div class="input-group">
+                <div>
+                    <div class="section-title">選擇人員</div>
+                    <div class="button-group">
+                        <button class="btn active" id="btn-orange" onclick="selectPerson('orange')">🍊 橘子哥哥</button>
+                        <button class="btn" id="btn-luna" onclick="selectPerson('luna')">🌙 Luna妹妹</button>
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <label for="schoolYear">學年度：</label>
-                    <input type="number" id="schoolYear" min="114" max="130" value="115" placeholder="例：115">
-                    <span style="margin-left: 10px;">學年度</span>
+                <div>
+                    <div class="section-title">學年度</div>
+                    <div class="button-group">
+                        <select id="year-select">
+                            <!-- 年度選項將由 JavaScript 生成 -->
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="section-title">年級</div>
+                    <div class="button-group">
+                        <button class="school-section-btn" onclick="toggleGradeSection('kindergarten')">🎒 幼稚園</button>
+                        <button class="school-section-btn" onclick="toggleGradeSection('elementary')">📚 國小</button>
+                        <button class="school-section-btn" onclick="toggleGradeSection('junior')">📖 國中</button>
+                        <button class="school-section-btn" onclick="toggleGradeSection('senior')">🎓 高中</button>
+                        <button class="school-section-btn" onclick="toggleGradeSection('university')">🏫 大學</button>
+                    </div>
+                    
+                    <div class="grade-section" id="kindergarten-grades">
+                        <!-- 幼稚園年級按鈕 -->
+                    </div>
+                    
+                    <div class="grade-section" id="elementary-grades">
+                        <!-- 國小年級按鈕 -->
+                    </div>
+                    
+                    <div class="grade-section" id="junior-grades">
+                        <!-- 國中年級按鈕 -->
+                    </div>
+                    
+                    <div class="grade-section" id="senior-grades">
+                        <!-- 高中年級按鈕 -->
+                    </div>
+                    
+                    <div class="grade-section" id="university-grades">
+                        <!-- 大學年級按鈕 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="person-card" id="orange-card">
+                <h3>🍊 橘子哥哥</h3>
+                <div class="info-item">
+                    <span class="info-label">年級：</span>
+                    <span class="info-value" id="orange-grade">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">年齡：</span>
+                    <span class="info-value age-highlight" id="orange-age">-</span>
                 </div>
             </div>
 
-            <div class="results-section">
-                <h2>👨‍👩‍👧‍👦 家庭成員資訊</h2>
-                <div class="family-grid" id="familyResults">
-                    <!-- 結果會在這裡顯示 -->
+            <div class="person-card luna" id="luna-card">
+                <h3>🌙 Luna妹妹</h3>
+                <div class="info-item">
+                    <span class="info-label">年級：</span>
+                    <span class="info-value" id="luna-grade">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">年齡：</span>
+                    <span class="info-value age-highlight" id="luna-age">-</span>
                 </div>
             </div>
+        </div>
 
-            <div class="note">
-                <h3>📋 說明</h3>
-                <p><strong>學年度計算基準：</strong>每年9月1日為新學年度開始</p>
-                <p><strong>年級對應年齡：</strong></p>
-                <ul style="margin-top: 10px; margin-left: 20px;">
-                    <li>幼稚園：幼幼班2歲、小班3歲、中班4歲、大班5歲</li>
-                    <li>國小：一到六年級 (6-11歲)</li>
-                    <li>國中：一到三年級 (12-14歲)</li>
-                    <li>高中：一到三年級 (15-17歲)</li>
-                    <li>大學：一到四年級 (18-21歲)</li>
-                </ul>
+        <div class="parents-section">
+            <h3>👨‍👩‍👧‍👦 爸媽年齡</h3>
+            <div class="parents-grid">
+                <div class="parent-info">
+                    <div class="parent-name">老皮爸爸</div>
+                    <div>生日：民國76/06/06</div>
+                    <div>年齡：<span class="age-highlight" id="dad-age">-</span></div>
+                </div>
+                <div class="parent-info">
+                    <div class="parent-name">Rita媽媽</div>
+                    <div>生日：民國78/07/29</div>
+                    <div>年齡：<span class="age-highlight" id="mom-age">-</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <h3>📊 家庭成長互動式圖表</h3>
+            <div class="chart-container">
+                <canvas id="familyChart"></canvas>
             </div>
         </div>
     </div>
 
     <script>
-        // 家庭成員基本資料 (民國年)
-        const familyData = {
-            orange: {
-                name: '🍊 橘子哥哥',
-                birth: { year: 109, month: 11, day: 27 }
-            },
-            luna: {
-                name: '🌙 Luna妹妹',
-                birth: { year: 114, month: 5, day: 13 }
-            },
-            dad: {
-                name: '👨 老皮 (爸爸)',
-                birth: { year: 76, month: 6, day: 6 }
-            },
-            mom: {
-                name: '👩 Rita (媽媽)',
-                birth: { year: 78, month: 7, day: 29 }
-            }
+        // 年級定義
+        const grades = {
+            kindergarten: [
+                { name: '幼幼班', age: 2 },
+                { name: '小班', age: 3 },
+                { name: '中班', age: 4 },
+                { name: '大班', age: 5 }
+            ],
+            elementary: [
+                { name: '國小一年級', age: 6 },
+                { name: '國小二年級', age: 7 },
+                { name: '國小三年級', age: 8 },
+                { name: '國小四年級', age: 9 },
+                { name: '國小五年級', age: 10 },
+                { name: '國小六年級', age: 11 }
+            ],
+            junior: [
+                { name: '國中一年級', age: 12 },
+                { name: '國中二年級', age: 13 },
+                { name: '國中三年級', age: 14 }
+            ],
+            senior: [
+                { name: '高中一年級', age: 15 },
+                { name: '高中二年級', age: 16 },
+                { name: '高中三年級', age: 17 }
+            ],
+            university: [
+                { name: '大學一年級', age: 18 },
+                { name: '大學二年級', age: 19 },
+                { name: '大學三年級', age: 20 },
+                { name: '大學四年級', age: 21 }
+            ]
         };
 
-        // 年級對應的年齡範圍
-        const gradeAgeMap = {
-            '幼幼班': 2,
-            '小班': 3,
-            '中班': 4,
-            '大班': 5,
-            '國小一年級': 6,
-            '國小二年級': 7,
-            '國小三年級': 8,
-            '國小四年級': 9,
-            '國小五年級': 10,
-            '國小六年級': 11,
-            '國中一年級': 12,
-            '國中二年級': 13,
-            '國中三年級': 14,
-            '高中一年級': 15,
-            '高中二年級': 16,
-            '高中三年級': 17,
-            '大學一年級': 18,
-            '大學二年級': 19,
-            '大學三年級': 20,
-            '大學四年級': 21
-        };
+        // 展開所有年級
+        const allGrades = [
+            ...grades.kindergarten,
+            ...grades.elementary,
+            ...grades.junior,
+            ...grades.senior,
+            ...grades.university
+        ];
 
-        // 年齡對應年級的反向映射
-        const ageGradeMap = {};
-        Object.keys(gradeAgeMap).forEach(grade => {
-            ageGradeMap[gradeAgeMap[grade]] = grade;
-        });
+        // 基準資料：115學年度橘子哥哥大班，Luna妹妹還未入學（1歲）
+        // 116學年度橘子哥哥國小一年級，Luna妹妹幼幼班
+        const baseYear = 116;
+        const orangeBaseGradeIndex = 4; // 國小一年級在allGrades中的索引
+        const lunaBaseGradeIndex = 0; // 幼幼班在allGrades中的索引
 
-        // 計算在指定學年度時的年齡
-        function calculateAge(birth, schoolYear) {
-            // 學年度開始時間 (9月1日)
-            const schoolStartYear = schoolYear + 1911; // 轉換為西元年
-            const schoolStartDate = new Date(schoolStartYear, 8, 1); // 9月1日 (月份從0開始)
+        // 當前選擇的狀態
+        let currentPerson = 'orange';
+        let currentYear = baseYear;
+        let currentGradeIndex = orangeBaseGradeIndex;
+        let currentSection = null;
+        let familyChart = null;
+
+        // DOM元素
+        const yearSelect = document.getElementById('year-select');
+
+        // 選擇人員
+        function selectPerson(person) {
+            currentPerson = person;
             
-            // 生日日期
-            const birthYear = birth.year + 1911; // 轉換為西元年
-            const birthDate = new Date(birthYear, birth.month - 1, birth.day);
+            // 更新按鈕狀態
+            document.getElementById('btn-orange').classList.toggle('active', person === 'orange');
+            document.getElementById('btn-luna').classList.toggle('active', person === 'luna');
             
-            let age = schoolStartYear - birthYear;
-            
-            // 如果學年度開始時還未過生日，年齡減1
-            const schoolStartMonth = 9;
-            const schoolStartDay = 1;
-            
-            if (birth.month > schoolStartMonth || 
-                (birth.month === schoolStartMonth && birth.day > schoolStartDay)) {
-                age--;
-            }
-            
-            return age;
+            // 根據當前學年度更新預設年級
+            updateDefaultGrade();
+            updateAllGradeButtons();
+            calculate();
         }
 
-        // 根據年齡獲取年級
-        function getGradeByAge(age) {
-            if (age < 2) return '未滿2歲';
-            if (age > 21) return '大學畢業';
-            return ageGradeMap[age] || `${age}歲`;
+        // 選擇學年度
+        function selectYear(year) {
+            currentYear = year;
+            updateDefaultGrade();
+            updateAllGradeButtons();
+            calculate();
         }
 
-        // 格式化生日顯示
-        function formatBirthday(birth) {
-            return `民國${birth.year}/${birth.month.toString().padStart(2, '0')}/${birth.day.toString().padStart(2, '0')}`;
-        }
-
-        // 更新顯示結果
-        function updateResults() {
-            const childSelect = document.getElementById('childSelect').value;
-            const gradeSelect = document.getElementById('gradeSelect').value;
-            const schoolYear = parseInt(document.getElementById('schoolYear').value);
-            
-            if (!gradeSelect || !schoolYear) {
-                document.getElementById('familyResults').innerHTML = '<p style="text-align: center; opacity: 0.7;">請選擇年級和學年度</p>';
-                document.getElementById('resultsTitle').textContent = '👨‍👩‍👧‍👦 家庭成員資訊';
-                return;
-            }
-
-            // 更新標題顯示學年度
-            document.getElementById('resultsTitle').textContent = `👨‍👩‍👧‍👦 ${schoolYear}學年度 家庭成員資訊`;
-
-            // 計算所選孩子在該學年度的年齡
-            const selectedChild = familyData[childSelect];
-            const selectedChildAge = calculateAge(selectedChild.birth, schoolYear);
-            
-            // 計算年級差距
-            const gradeAge = gradeAgeMap[gradeSelect];
-            const ageDiff = gradeAge - selectedChildAge;
-
-            let resultsHTML = '';
-
-            // 為每個家庭成員計算年齡和年級
-            Object.keys(familyData).forEach(member => {
-                const person = familyData[member];
-                let age = calculateAge(person.birth, schoolYear);
-                let grade = '';
-
-                if (member === 'orange' || member === 'luna') {
-                    // 對孩子調整年齡以符合輸入的年級
-                    if (member === childSelect) {
-                        age = gradeAge;
-                        grade = gradeSelect;
-                    } else {
-                        // 另一個孩子的年齡需要根據實際年齡差距計算
-                        const realAgeDiff = calculateAge(familyData.orange.birth, schoolYear) - 
-                                          calculateAge(familyData.luna.birth, schoolYear);
-                        
-                        if (member === 'orange' && childSelect === 'luna') {
-                            age = gradeAge + realAgeDiff;
-                        } else if (member === 'luna' && childSelect === 'orange') {
-                            age = gradeAge - realAgeDiff;
-                        }
-                        grade = getGradeByAge(age);
-                    }
+        // 切換年級區段顯示
+        function toggleGradeSection(section) {
+            // 隱藏所有區段
+            const sections = ['kindergarten', 'elementary', 'junior', 'senior', 'university'];
+            sections.forEach(s => {
+                const element = document.getElementById(s + '-grades');
+                const button = document.querySelector(`[onclick="toggleGradeSection('${s}')"]`);
+                if (s === section) {
+                    element.classList.toggle('show');
+                    button.classList.toggle('active');
+                    currentSection = element.classList.contains('show') ? section : null;
                 } else {
-                    // 父母只顯示年齡
-                    grade = `${age}歲`;
+                    element.classList.remove('show');
+                    button.classList.remove('active');
                 }
-
-                resultsHTML += `
-                    <div class="family-member">
-                        <h3>${person.name}</h3>
-                        <div class="age">${age}歲</div>
-                        <div class="grade">${grade}</div>
-                        <div class="birthday">${formatBirthday(person.birth)}</div>
-                    </div>
-                `;
             });
-
-            document.getElementById('familyResults').innerHTML = resultsHTML;
         }
 
-        // 綁定事件監聽器
-        document.getElementById('childSelect').addEventListener('change', updateResults);
-        document.getElementById('gradeSelect').addEventListener('change', updateResults);
-        document.getElementById('schoolYear').addEventListener('input', updateResults);
+        // 選擇年級
+        function selectGrade(gradeIndex) {
+            currentGradeIndex = gradeIndex;
+            updateAllGradeButtons();
+            
+            // 根據年級計算對應學年度
+            if (currentPerson === 'orange') {
+                currentYear = baseYear + (gradeIndex - orangeBaseGradeIndex);
+            } else {
+                currentYear = baseYear + (gradeIndex - lunaBaseGradeIndex);
+            }
+            
+            // 確保學年度在範圍內並更新選擇
+            if (currentYear >= 110 && currentYear <= 133) {
+                yearSelect.value = currentYear;
+            }
+            
+            calculate();
+        }
 
-        // 初始化顯示
-        updateResults();
+        // 更新預設年級
+        function updateDefaultGrade() {
+            const yearDiff = currentYear - baseYear;
+            if (currentPerson === 'orange') {
+                const newGradeIndex = orangeBaseGradeIndex + yearDiff;
+                if (newGradeIndex >= 0 && newGradeIndex < allGrades.length) {
+                    currentGradeIndex = newGradeIndex;
+                }
+            } else {
+                const newGradeIndex = lunaBaseGradeIndex + yearDiff;
+                if (newGradeIndex >= 0 && newGradeIndex < allGrades.length) {
+                    currentGradeIndex = newGradeIndex;
+                }
+            }
+        }
+
+        // 初始化學年度下拉選單
+        function initYearSelect() {
+            yearSelect.innerHTML = '';
+            for (let year = 110; year <= 133; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = `${year}學年度`;
+                yearSelect.appendChild(option);
+            }
+            yearSelect.value = currentYear;
+            yearSelect.addEventListener('change', () => {
+                currentYear = parseInt(yearSelect.value);
+                selectYear(currentYear);
+            });
+        }
+
+        // 初始化各區段的年級按鈕
+        function initGradeSections() {
+            const sections = [
+                { id: 'kindergarten-grades', grades: grades.kindergarten },
+                { id: 'elementary-grades', grades: grades.elementary },
+                { id: 'junior-grades', grades: grades.junior },
+                { id: 'senior-grades', grades: grades.senior },
+                { id: 'university-grades', grades: grades.university }
+            ];
+
+            let globalIndex = 0;
+            sections.forEach(section => {
+                const container = document.getElementById(section.id);
+                container.innerHTML = '';
+                
+                section.grades.forEach(grade => {
+                    const button = document.createElement('button');
+                    button.className = 'btn';
+                    button.textContent = grade.name;
+                    button.onclick = () => selectGrade(globalIndex);
+                    container.appendChild(button);
+                    globalIndex++;
+                });
+            });
+        }
+
+        // 更新所有年級按鈕的狀態
+        function updateAllGradeButtons() {
+            const allButtons = document.querySelectorAll('.grade-section .btn');
+            allButtons.forEach((btn, index) => {
+                btn.classList.toggle('active', index === currentGradeIndex);
+            });
+        }
+
+        // 計算結果
+        function calculate() {
+            let orangeGradeIndex, lunaGradeIndex;
+            
+            if (currentPerson === 'orange') {
+                orangeGradeIndex = currentGradeIndex;
+                const gradeDiff = orangeBaseGradeIndex - lunaBaseGradeIndex;
+                lunaGradeIndex = orangeGradeIndex - gradeDiff;
+            } else {
+                lunaGradeIndex = currentGradeIndex;
+                const gradeDiff = orangeBaseGradeIndex - lunaBaseGradeIndex;
+                orangeGradeIndex = lunaGradeIndex + gradeDiff;
+            }
+            
+            // 更新顯示
+            updateDisplay(orangeGradeIndex, lunaGradeIndex, currentYear);
+            
+            // 更新圖表
+            updateChart();
+        }
+
+        // 更新顯示
+        function updateDisplay(orangeGradeIndex, lunaGradeIndex, year) {
+            // 橘子哥哥
+            if (orangeGradeIndex >= 0 && orangeGradeIndex < allGrades.length) {
+                document.getElementById('orange-grade').textContent = allGrades[orangeGradeIndex].name;
+                document.getElementById('orange-age').textContent = `${allGrades[orangeGradeIndex].age}歲`;
+            } else {
+                document.getElementById('orange-grade').textContent = '未入學/已畢業';
+                const estimatedAge = allGrades[orangeBaseGradeIndex].age + (year - baseYear);
+                document.getElementById('orange-age').textContent = `${Math.max(0, estimatedAge)}歲`;
+            }
+            
+            // Luna妹妹
+            if (lunaGradeIndex >= 0 && lunaGradeIndex < allGrades.length) {
+                document.getElementById('luna-grade').textContent = allGrades[lunaGradeIndex].name;
+                document.getElementById('luna-age').textContent = `${allGrades[lunaGradeIndex].age}歲`;
+            } else if (lunaGradeIndex < 0) {
+                document.getElementById('luna-grade').textContent = '未入學';
+                const estimatedAge = allGrades[lunaBaseGradeIndex].age + (year - baseYear);
+                document.getElementById('luna-age').textContent = `${Math.max(0, estimatedAge)}歲`;
+            } else {
+                document.getElementById('luna-grade').textContent = '已畢業';
+                const estimatedAge = allGrades[lunaBaseGradeIndex].age + (year - baseYear);
+                document.getElementById('luna-age').textContent = `${estimatedAge}歲`;
+            }
+            
+            // 計算爸媽年齡
+            const targetYear = year + 1911;
+            
+            // 老皮爸爸：民國76/06/06 = 1987/06/06
+            const dadBirthYear = 1987;
+            const dadAge = targetYear - dadBirthYear;
+            document.getElementById('dad-age').textContent = `${dadAge}歲`;
+            
+            // Rita媽媽：民國78/07/29 = 1989/07/29
+            const momBirthYear = 1989;
+            const momAge = targetYear - momBirthYear;
+            document.getElementById('mom-age').textContent = `${momAge}歲`;
+        }
+
+        // 初始化圖表
+        function initChart() {
+            const ctx = document.getElementById('familyChart').getContext('2d');
+            
+            // 準備數據
+            const years = [];
+            const orangeAges = [];
+            const lunaAges = [];
+            const dadAges = [];
+            const momAges = [];
+            const orangeGradeLabels = [];
+            const lunaGradeLabels = [];
+            
+            for (let year = 110; year <= 133; year++) {
+                years.push(year);
+                
+                // 計算橘子哥哥
+                const orangeYearDiff = year - baseYear;
+                const orangeGradeIdx = orangeBaseGradeIndex + orangeYearDiff;
+                if (orangeGradeIdx >= 0 && orangeGradeIdx < allGrades.length) {
+                    orangeAges.push(allGrades[orangeGradeIdx].age);
+                    orangeGradeLabels.push(allGrades[orangeGradeIdx].name);
+                } else {
+                    const estimatedAge = allGrades[orangeBaseGradeIndex].age + orangeYearDiff;
+                    orangeAges.push(Math.max(0, estimatedAge));
+                    orangeGradeLabels.push(orangeGradeIdx < 0 ? '未入學' : '已畢業');
+                }
+                
+                // 計算Luna妹妹
+                const lunaYearDiff = year - baseYear;
+                const lunaGradeIdx = lunaBaseGradeIndex + lunaYearDiff;
+                if (lunaGradeIdx >= 0 && lunaGradeIdx < allGrades.length) {
+                    lunaAges.push(allGrades[lunaGradeIdx].age);
+                    lunaGradeLabels.push(allGrades[lunaGradeIdx].name);
+                } else {
+                    const estimatedAge = allGrades[lunaBaseGradeIndex].age + lunaYearDiff;
+                    lunaAges.push(Math.max(0, estimatedAge));
+                    lunaGradeLabels.push(lunaGradeIdx < 0 ? '未入學' : '已畢業');
+                }
+                
+                // 計算爸媽年齡
+                const targetYear = year + 1911;
+                dadAges.push(targetYear - 1987);
+                momAges.push(targetYear - 1989);
+            }
+            
+            familyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: '🍊 橘子哥哥',
+                        data: orangeAges,
+                        borderColor: '#4facfe',
+                        backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#4facfe',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        tension: 0.4
+                    }, {
+                        label: '🌙 Luna妹妹',
+                        data: lunaAges,
+                        borderColor: '#fa709a',
+                        backgroundColor: 'rgba(250, 112, 154, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fa709a',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        tension: 0.4
+                    }, {
+                        label: '👨 老皮爸爸',
+                        data: dadAges,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        tension: 0.2
+                    }, {
+                        label: '👩 Rita媽媽',
+                        data: momAges,
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#764ba2',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '家庭成員年齡成長圖',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    return `${context[0].label}學年度`;
+                                },
+                                label: function(context) {
+                                    const datasetIndex = context.datasetIndex;
+                                    const dataIndex = context.dataIndex;
+                                    let gradeInfo = '';
+                                    
+                                    if (datasetIndex === 0) { // 橘子哥哥
+                                        gradeInfo = ` (${orangeGradeLabels[dataIndex]})`;
+                                    } else if (datasetIndex === 1) { // Luna妹妹
+                                        gradeInfo = ` (${lunaGradeLabels[dataIndex]})`;
+                                    }
+                                    
+                                    return `${context.dataset.label}: ${context.parsed.y}歲${gradeInfo}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '學年度',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '年齡',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '歲';
+                                }
+                            }
+                        }
+                    },
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const dataIndex = elements[0].index;
+                            const clickedYear = years[dataIndex];
+                            
+                            // 更新當前選擇的年份
+                            currentYear = clickedYear;
+                            yearSelect.value = clickedYear;
+                            
+                            // 更新預設年級並重新計算
+                            updateDefaultGrade();
+                            updateAllGradeButtons();
+                            calculate();
+                            
+                            // 高亮當前選擇的點
+                            updateChart();
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新圖表（高亮當前選擇的年份）
+        function updateChart() {
+            if (!familyChart) return;
+            
+            const currentIndex = currentYear - 110;
+            
+            // 重置所有點的樣式
+            familyChart.data.datasets.forEach((dataset, datasetIndex) => {
+                dataset.pointRadius = dataset.pointRadius || [];
+                dataset.pointBorderWidth = dataset.pointBorderWidth || [];
+                
+                for (let i = 0; i < dataset.data.length; i++) {
+                    if (i === currentIndex) {
+                        // 高亮當前選擇的點
+                        if (!Array.isArray(dataset.pointRadius)) {
+                            const originalRadius = dataset.pointRadius;
+                            dataset.pointRadius = new Array(dataset.data.length).fill(originalRadius);
+                        }
+                        if (!Array.isArray(dataset.pointBorderWidth)) {
+                            const originalWidth = dataset.pointBorderWidth;
+                            dataset.pointBorderWidth = new Array(dataset.data.length).fill(originalWidth);
+                        }
+                        
+                        dataset.pointRadius[i] = datasetIndex < 2 ? 10 : 8; // 小朋友的點更大
+                        dataset.pointBorderWidth[i] = 4;
+                    } else {
+                        // 恢復默認大小
+                        if (Array.isArray(dataset.pointRadius)) {
+                            dataset.pointRadius[i] = datasetIndex < 2 ? 6 : 4;
+                        }
+                        if (Array.isArray(dataset.pointBorderWidth)) {
+                            dataset.pointBorderWidth[i] = 2;
+                        }
+                    }
+                }
+            });
+            
+            familyChart.update('none'); // 不使用動畫更新
+        }
+
+        // 初始化
+        initYearSelect();
+        initGradeSections();
+        updateAllGradeButtons();
+        calculate();
+        
+        // 等待DOM完全載入後初始化圖表
+        setTimeout(() => {
+            initChart();
+            updateChart();
+        }, 100);
     </script>
 </body>
 </html>
