@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭年齡與年級計算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .input-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .input-section h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-weight: bold;
+            min-width: 120px;
+        }
+
+        select, input {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            flex: 1;
+            min-width: 200px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            transform: scale(1.02);
+            transition: transform 0.2s;
+        }
+
+        .results-section {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+        }
+
+        .results-section h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+        }
+
+        .family-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .family-member {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .family-member:hover {
+            transform: translateY(-5px);
+        }
+
+        .family-member h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .family-member .age {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffeb3b;
+        }
+
+        .family-member .grade {
+            font-size: 1.1em;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 8px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .birthday {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .note {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        .note h3 {
+            color: #d35400;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            label {
+                min-width: auto;
+            }
+
+            .family-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 家庭年齡與年級計算器</h1>
+            <p>輸入任一孩子的年級，計算全家的年齡與年級</p>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <h2>📚 設定年級資訊</h2>
+                <div class="input-group">
+                    <label for="childSelect">選擇孩子：</label>
+                    <select id="childSelect">
+                        <option value="orange">🍊 橘子哥哥</option>
+                        <option value="luna">🌙 Luna妹妹</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="gradeSelect">年級：</label>
+                    <select id="gradeSelect">
+                        <option value="">請選擇年級</option>
+                        <option value="幼幼班">幼幼班 (滿2歲)</option>
+                        <option value="小班">小班 (滿3歲)</option>
+                        <option value="中班">中班 (滿4歲)</option>
+                        <option value="大班">大班 (滿5歲)</option>
+                        <option value="國小一年級">國小一年級</option>
+                        <option value="國小二年級">國小二年級</option>
+                        <option value="國小三年級">國小三年級</option>
+                        <option value="國小四年級">國小四年級</option>
+                        <option value="國小五年級">國小五年級</option>
+                        <option value="國小六年級">國小六年級</option>
+                        <option value="國中一年級">國中一年級</option>
+                        <option value="國中二年級">國中二年級</option>
+                        <option value="國中三年級">國中三年級</option>
+                        <option value="高中一年級">高中一年級</option>
+                        <option value="高中二年級">高中二年級</option>
+                        <option value="高中三年級">高中三年級</option>
+                        <option value="大學一年級">大學一年級</option>
+                        <option value="大學二年級">大學二年級</option>
+                        <option value="大學三年級">大學三年級</option>
+                        <option value="大學四年級">大學四年級</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="schoolYear">學年度：</label>
+                    <input type="number" id="schoolYear" min="114" max="130" value="115" placeholder="例：115">
+                    <span style="margin-left: 10px;">學年度</span>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h2>👨‍👩‍👧‍👦 家庭成員資訊</h2>
+                <div class="family-grid" id="familyResults">
+                    <!-- 結果會在這裡顯示 -->
+                </div>
+            </div>
+
+            <div class="note">
+                <h3>📋 說明</h3>
+                <p><strong>學年度計算基準：</strong>每年9月1日為新學年度開始</p>
+                <p><strong>年級對應年齡：</strong></p>
+                <ul style="margin-top: 10px; margin-left: 20px;">
+                    <li>幼稚園：幼幼班2歲、小班3歲、中班4歲、大班5歲</li>
+                    <li>國小：一到六年級 (6-11歲)</li>
+                    <li>國中：一到三年級 (12-14歲)</li>
+                    <li>高中：一到三年級 (15-17歲)</li>
+                    <li>大學：一到四年級 (18-21歲)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 家庭成員基本資料 (民國年)
+        const familyData = {
+            orange: {
+                name: '🍊 橘子哥哥',
+                birth: { year: 109, month: 11, day: 27 }
+            },
+            luna: {
+                name: '🌙 Luna妹妹',
+                birth: { year: 114, month: 5, day: 13 }
+            },
+            dad: {
+                name: '👨 老皮 (爸爸)',
+                birth: { year: 76, month: 6, day: 6 }
+            },
+            mom: {
+                name: '👩 Rita (媽媽)',
+                birth: { year: 78, month: 7, day: 29 }
+            }
+        };
+
+        // 年級對應的年齡範圍
+        const gradeAgeMap = {
+            '幼幼班': 2,
+            '小班': 3,
+            '中班': 4,
+            '大班': 5,
+            '國小一年級': 6,
+            '國小二年級': 7,
+            '國小三年級': 8,
+            '國小四年級': 9,
+            '國小五年級': 10,
+            '國小六年級': 11,
+            '國中一年級': 12,
+            '國中二年級': 13,
+            '國中三年級': 14,
+            '高中一年級': 15,
+            '高中二年級': 16,
+            '高中三年級': 17,
+            '大學一年級': 18,
+            '大學二年級': 19,
+            '大學三年級': 20,
+            '大學四年級': 21
+        };
+
+        // 年齡對應年級的反向映射
+        const ageGradeMap = {};
+        Object.keys(gradeAgeMap).forEach(grade => {
+            ageGradeMap[gradeAgeMap[grade]] = grade;
+        });
+
+        // 計算在指定學年度時的年齡
+        function calculateAge(birth, schoolYear) {
+            // 學年度開始時間 (9月1日)
+            const schoolStartYear = schoolYear + 1911; // 轉換為西元年
+            const schoolStartDate = new Date(schoolStartYear, 8, 1); // 9月1日 (月份從0開始)
+            
+            // 生日日期
+            const birthYear = birth.year + 1911; // 轉換為西元年
+            const birthDate = new Date(birthYear, birth.month - 1, birth.day);
+            
+            let age = schoolStartYear - birthYear;
+            
+            // 如果學年度開始時還未過生日，年齡減1
+            const schoolStartMonth = 9;
+            const schoolStartDay = 1;
+            
+            if (birth.month > schoolStartMonth || 
+                (birth.month === schoolStartMonth && birth.day > schoolStartDay)) {
+                age--;
+            }
+            
+            return age;
+        }
+
+        // 根據年齡獲取年級
+        function getGradeByAge(age) {
+            if (age < 2) return '未滿2歲';
+            if (age > 21) return '大學畢業';
+            return ageGradeMap[age] || `${age}歲`;
+        }
+
+        // 格式化生日顯示
+        function formatBirthday(birth) {
+            return `民國${birth.year}/${birth.month.toString().padStart(2, '0')}/${birth.day.toString().padStart(2, '0')}`;
+        }
+
+        // 更新顯示結果
+        function updateResults() {
+            const childSelect = document.getElementById('childSelect').value;
+            const gradeSelect = document.getElementById('gradeSelect').value;
+            const schoolYear = parseInt(document.getElementById('schoolYear').value);
+            
+            if (!gradeSelect || !schoolYear) {
+                document.getElementById('familyResults').innerHTML = '<p style="text-align: center; opacity: 0.7;">請選擇年級和學年度</p>';
+                document.getElementById('resultsTitle').textContent = '👨‍👩‍👧‍👦 家庭成員資訊';
+                return;
+            }
+
+            // 更新標題顯示學年度
+            document.getElementById('resultsTitle').textContent = `👨‍👩‍👧‍👦 ${schoolYear}學年度 家庭成員資訊`;
+
+            // 計算所選孩子在該學年度的年齡
+            const selectedChild = familyData[childSelect];
+            const selectedChildAge = calculateAge(selectedChild.birth, schoolYear);
+            
+            // 計算年級差距
+            const gradeAge = gradeAgeMap[gradeSelect];
+            const ageDiff = gradeAge - selectedChildAge;
+
+            let resultsHTML = '';
+
+            // 為每個家庭成員計算年齡和年級
+            Object.keys(familyData).forEach(member => {
+                const person = familyData[member];
+                let age = calculateAge(person.birth, schoolYear);
+                let grade = '';
+
+                if (member === 'orange' || member === 'luna') {
+                    // 對孩子調整年齡以符合輸入的年級
+                    if (member === childSelect) {
+                        age = gradeAge;
+                        grade = gradeSelect;
+                    } else {
+                        // 另一個孩子的年齡需要根據實際年齡差距計算
+                        const realAgeDiff = calculateAge(familyData.orange.birth, schoolYear) - 
+                                          calculateAge(familyData.luna.birth, schoolYear);
+                        
+                        if (member === 'orange' && childSelect === 'luna') {
+                            age = gradeAge + realAgeDiff;
+                        } else if (member === 'luna' && childSelect === 'orange') {
+                            age = gradeAge - realAgeDiff;
+                        }
+                        grade = getGradeByAge(age);
+                    }
+                } else {
+                    // 父母只顯示年齡
+                    grade = `${age}歲`;
+                }
+
+                resultsHTML += `
+                    <div class="family-member">
+                        <h3>${person.name}</h3>
+                        <div class="age">${age}歲</div>
+                        <div class="grade">${grade}</div>
+                        <div class="birthday">${formatBirthday(person.birth)}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('familyResults').innerHTML = resultsHTML;
+        }
+
+        // 綁定事件監聽器
+        document.getElementById('childSelect').addEventListener('change', updateResults);
+        document.getElementById('gradeSelect').addEventListener('change', updateResults);
+        document.getElementById('schoolYear').addEventListener('input', updateResults);
+
+        // 初始化顯示
+        updateResults();
+    </script>
+</body>
+</html>
