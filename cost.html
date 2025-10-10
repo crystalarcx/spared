@@ -45,83 +45,51 @@
             margin-bottom: 25px;
         }
         
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 16px;
-        }
-        
-        input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-        
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .button-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-        }
-        
-        .distance-options {
+        .distance-method {
             display: flex;
             gap: 15px;
-            margin-bottom: 20px;
-            justify-content: center;
+            margin-bottom: 15px;
         }
         
-        .distance-option {
-            padding: 10px 20px;
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
+        .method-radio {
+            display: flex;
+            align-items: center;
             cursor: pointer;
-            transition: all 0.3s;
         }
         
-        .distance-option:hover {
-            background: #f0f0ff;
+        .method-radio input[type="radio"] {
+            width: auto;
+            margin-right: 8px;
+            cursor: pointer;
         }
         
-        .distance-option.active {
-            background: #667eea;
-            color: white;
+        .method-radio label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 15px;
         }
         
-        .input-section {
+        .distance-input-group {
             display: none;
         }
         
-        .input-section.active {
+        .distance-input-group.active {
             display: block;
         }
         
         .distance-buttons {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
         }
         
         .distance-button {
-            padding: 15px 10px;
+            padding: 20px 15px;
             background: white;
             color: #333;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
@@ -131,14 +99,55 @@
         
         .distance-button:hover {
             border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
         }
         
         .distance-button.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
+            border-color: #10b981;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .distance-button .distance-range {
+            font-size: 16px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .distance-button .distance-cost {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
         }
         
         .type-button {
@@ -367,9 +376,31 @@
         </div>
         
         <div class="form-group">
-            <label for="address">患者地址</label>
-            <input type="text" id="address" placeholder="請輸入地址（例：東區大學路1號）或地標名稱">
-            <small style="color: #666; font-size: 13px; margin-top: 5px; display: block;">* 系統會自動加上「台南市」前綴</small>
+            <label>距離計算方式</label>
+            <div class="distance-method">
+                <div class="method-radio">
+                    <input type="radio" id="method-address" name="distanceMethod" value="address" checked>
+                    <label for="method-address">輸入地址計算</label>
+                </div>
+                <div class="method-radio">
+                    <input type="radio" id="method-manual" name="distanceMethod" value="manual">
+                    <label for="method-manual">直接選擇距離區間</label>
+                </div>
+            </div>
+            
+            <div class="distance-input-group active" id="addressInput">
+                <input type="text" id="address" placeholder="請輸入地址（例：東區大學路1號）或地標名稱">
+                <small style="color: #666; font-size: 13px; margin-top: 5px; display: block;">* 系統會自動加上「台南市」前綴</small>
+            </div>
+            
+            <div class="distance-input-group" id="manualInput">
+                <select id="distanceRange">
+                    <option value="">請選擇距離區間</option>
+                    <option value="0-2">2 公里以下（NT$ 200/日）</option>
+                    <option value="2-5">2-5 公里（NT$ 280/日）</option>
+                    <option value="5-10">5-10 公里（NT$ 480/日）</option>
+                </select>
+            </div>
         </div>
         
         <button class="calculate-button" onclick="calculateCost()">計算費用</button>
@@ -510,7 +541,33 @@
                     selectedInfection = this.getAttribute('data-type');
                 });
             });
+            
+            // 距離計算方式切換
+            const methodRadios = document.querySelectorAll('input[name="distanceMethod"]');
+            methodRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const addressInput = document.getElementById('addressInput');
+                    const manualInput = document.getElementById('manualInput');
+                    
+                    if (this.value === 'address') {
+                        addressInput.classList.add('active');
+                        manualInput.classList.remove('active');
+                    } else {
+                        addressInput.classList.remove('active');
+                        manualInput.classList.add('active');
+                    }
+                });
+            });
         };
+        
+        function getTransportCostFromRange(range) {
+            switch(range) {
+                case '0-2': return 200;
+                case '2-5': return 280;
+                case '5-10': return 480;
+                default: return 0;
+            }
+        }
         
         function getTransportCost(km) {
             if (km <= 2) return 200;
@@ -520,7 +577,9 @@
         }
         
         function calculateCost() {
+            const distanceMethod = document.querySelector('input[name="distanceMethod"]:checked').value;
             const address = document.getElementById('address').value.trim();
+            const distanceRange = document.getElementById('distanceRange').value;
             
             const errorDiv = document.getElementById('error');
             const loadingDiv = document.getElementById('loading');
@@ -537,6 +596,41 @@
                 return;
             }
             
+            // 如果選擇手動輸入距離
+            if (distanceMethod === 'manual') {
+                if (!distanceRange) {
+                    errorDiv.textContent = '請選擇距離區間';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                
+                const infection = infectionData[selectedInfection];
+                const transportCost = getTransportCostFromRange(distanceRange);
+                const totalTransport = transportCost * infection.days;
+                const minTotalCost = infection.minCost + totalTransport;
+                const maxTotalCost = infection.maxCost + totalTransport;
+                
+                let rangeText = '';
+                switch(distanceRange) {
+                    case '0-2': rangeText = '2 公里以下'; break;
+                    case '2-5': rangeText = '2-5 公里'; break;
+                    case '5-10': rangeText = '5-10 公里'; break;
+                }
+                
+                document.getElementById('infectionLabel').textContent = infection.name;
+                document.getElementById('visitCost').textContent = 'NT$ ' + infection.cost;
+                document.getElementById('distance').textContent = rangeText;
+                document.getElementById('transportCost').textContent = 'NT$ ' + transportCost;
+                document.getElementById('days').textContent = infection.days + ' 天';
+                document.getElementById('totalTransport').textContent = 'NT$ ' + totalTransport;
+                document.getElementById('totalCost').textContent = 'NT$ ' + minTotalCost.toLocaleString() + ' - ' + maxTotalCost.toLocaleString();
+                
+                resultDiv.style.display = 'block';
+                resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                return;
+            }
+            
+            // 如果選擇輸入地址
             if (!address) {
                 errorDiv.textContent = '請輸入患者地址';
                 errorDiv.style.display = 'block';
