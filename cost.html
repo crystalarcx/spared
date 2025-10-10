@@ -45,6 +45,14 @@
             margin-bottom: 25px;
         }
         
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
         .distance-method {
             display: flex;
             gap: 15px;
@@ -70,66 +78,7 @@
             font-size: 15px;
         }
         
-        .distance-input-group {
-            display: none;
-        }
-        
-        .distance-input-group.active {
-            display: block;
-        }
-        
-        .distance-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-        }
-        
-        .distance-button {
-            padding: 20px 15px;
-            background: white;
-            color: #333;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-        
-        .distance-button:hover {
-            border-color: #667eea;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
-        }
-        
-        .distance-button.active {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            border-color: #10b981;
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
-        }
-        
-        .distance-button .distance-range {
-            font-size: 16px;
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        .distance-button .distance-cost {
-            font-size: 13px;
-            opacity: 0.8;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 16px;
-        }
-        
-        select, input {
+        input {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #e0e0e0;
@@ -138,10 +87,18 @@
             transition: all 0.3s;
         }
         
-        select:focus, input:focus {
+        input:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .distance-input-group {
+            display: none;
+        }
+        
+        .distance-input-group.active {
+            display: block;
         }
         
         .button-group {
@@ -173,6 +130,42 @@
             color: white;
             border-color: #667eea;
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .distance-button {
+            padding: 20px 15px;
+            background: white;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .distance-button:hover {
+            border-color: #10b981;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
+        }
+        
+        .distance-button.active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-color: #10b981;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .distance-button .distance-range {
+            font-size: 16px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .distance-button .distance-cost {
+            font-size: 13px;
+            opacity: 0.8;
         }
         
         .calculate-button {
@@ -394,12 +387,20 @@
             </div>
             
             <div class="distance-input-group" id="manualInput">
-                <select id="distanceRange">
-                    <option value="">請選擇距離區間</option>
-                    <option value="0-2">2 公里以下（NT$ 200/日）</option>
-                    <option value="2-5">2-5 公里（NT$ 280/日）</option>
-                    <option value="5-10">5-10 公里（NT$ 480/日）</option>
-                </select>
+                <div class="button-group">
+                    <button type="button" class="distance-button" data-range="0-2">
+                        <span class="distance-range">📍 2 公里以下</span>
+                        <span class="distance-cost">NT$ 200/日</span>
+                    </button>
+                    <button type="button" class="distance-button" data-range="2-5">
+                        <span class="distance-range">📍 2-5 公里</span>
+                        <span class="distance-cost">NT$ 280/日</span>
+                    </button>
+                    <button type="button" class="distance-button" data-range="5-10">
+                        <span class="distance-range">📍 5-10 公里</span>
+                        <span class="distance-cost">NT$ 480/日</span>
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -512,6 +513,7 @@
         let directionsService;
         let directionsRenderer;
         let selectedInfection = '';
+        let selectedDistance = '';
         
         const CLINIC_ADDRESS = '台南市永康區中華路901號';
         
@@ -532,13 +534,23 @@
             directionsRenderer = new google.maps.DirectionsRenderer();
             directionsRenderer.setMap(map);
             
-            // 按鈕選擇功能
+            // 感染類別按鈕選擇功能
             const typeButtons = document.querySelectorAll('.type-button');
             typeButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     typeButtons.forEach(btn => btn.classList.remove('active'));
                     this.classList.add('active');
                     selectedInfection = this.getAttribute('data-type');
+                });
+            });
+            
+            // 距離區間按鈕選擇功能
+            const distanceButtons = document.querySelectorAll('.distance-button');
+            distanceButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    distanceButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedDistance = this.getAttribute('data-range');
                 });
             });
             
@@ -579,7 +591,6 @@
         function calculateCost() {
             const distanceMethod = document.querySelector('input[name="distanceMethod"]:checked').value;
             const address = document.getElementById('address').value.trim();
-            const distanceRange = document.getElementById('distanceRange').value;
             
             const errorDiv = document.getElementById('error');
             const loadingDiv = document.getElementById('loading');
@@ -598,20 +609,20 @@
             
             // 如果選擇手動輸入距離
             if (distanceMethod === 'manual') {
-                if (!distanceRange) {
+                if (!selectedDistance) {
                     errorDiv.textContent = '請選擇距離區間';
                     errorDiv.style.display = 'block';
                     return;
                 }
                 
                 const infection = infectionData[selectedInfection];
-                const transportCost = getTransportCostFromRange(distanceRange);
+                const transportCost = getTransportCostFromRange(selectedDistance);
                 const totalTransport = transportCost * infection.days;
                 const minTotalCost = infection.minCost + totalTransport;
                 const maxTotalCost = infection.maxCost + totalTransport;
                 
                 let rangeText = '';
-                switch(distanceRange) {
+                switch(selectedDistance) {
                     case '0-2': rangeText = '2 公里以下'; break;
                     case '2-5': rangeText = '2-5 公里'; break;
                     case '5-10': rangeText = '5-10 公里'; break;
