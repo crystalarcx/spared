@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台南學校開車距離計算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .status.loading {
+            display: block;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .status.error {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+        
+        .status.success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+        
+        .results {
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .location-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .location-info strong {
+            color: #667eea;
+        }
+        
+        .school-item {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .school-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateX(5px);
+        }
+        
+        .school-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .school-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .school-note {
+            font-size: 12px;
+            color: #f44336;
+            font-weight: 500;
+        }
+        
+        .school-district {
+            font-size: 12px;
+            color: #666;
+            background: #f5f5f5;
+            padding: 3px 8px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        
+        .distance-info {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .distance-info span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .distance-info strong {
+            color: #667eea;
+            font-size: 16px;
+        }
+        
+        .sort-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .sort-controls label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        select {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #1976d2;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏫 台南學校開車距離計算器</h1>
+        <p class="subtitle">自動取得您的位置，計算到各學校的開車距離與時間</p>
+        
+        <div class="button-group">
+            <button id="getLocationBtn">📍 取得我的位置並計算距離</button>
+            <button id="refreshBtn" style="display:none;">🔄 重新計算</button>
+        </div>
+        
+        <div id="status" class="status"></div>
+        
+        <div id="results" class="results">
+            <div class="location-info">
+                <strong>📍 您的位置：</strong><span id="currentLocation"></span>
+            </div>
+            
+            <div class="sort-controls">
+                <label>排序方式：</label>
+                <select id="sortSelect">
+                    <option value="distance">依距離排序</option>
+                    <option value="duration">依時間排序</option>
+                    <option value="district">依行政區排序</option>
+                </select>
+            </div>
+            
+            <div id="schoolList"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = 'AIzaSyD3OziKOdWQcZ_ozelsG0U6nWnJoY3jN4I';
+        
+        const schools = [
+            { name: '忠義國小', district: '中西區', address: '台南市中西區忠義路二段2號', note: '收費' },
+            { name: '永福國小', district: '中西區', address: '台南市中西區永福路二段86號', note: '收費' },
+            { name: '協進國小', district: '中西區', address: '台南市中西區金華路四段17號', note: '收費' },
+            { name: '建興國中', district: '中西區', address: '台南市中西區府前路一段238號', note: '收費' },
+            { name: '進學國小', district: '中西區', address: '台南市中西區南寧街47號', note: '9/29不開放' },
+            { name: '中山國中', district: '中西區', address: '台南市中西區南寧街45號', note: '' },
+            { name: '勝利國小', district: '東區', address: '台南市東區勝利路10號', note: '六日開放' },
+            { name: '博愛國小', district: '東區', address: '台南市東區博愛路167號', note: '' },
+            { name: '大同國小', district: '東區', address: '台南市東區東門路二段77號', note: '' },
+            { name: '復興國小', district: '東區', address: '台南市東區裕文路60號', note: '' },
+            { name: '崇明國中', district: '東區', address: '台南市東區崇明路700號', note: '' },
+            { name: '立人國小', district: '北區', address: '台南市北區西門路三段41號', note: '收費' },
+            { name: '文元國小', district: '北區', address: '台南市北區海安路三段815號', note: '收費' },
+            { name: '民德國中', district: '北區', address: '台南市北區文賢路601號', note: '' },
+            { name: '南寧高中', district: '南區', address: '台南市南區萬年路167號', note: '收費/僅周日' },
+            { name: '大成國中', district: '南區', address: '台南市南區西門路一段306號', note: '' },
+            { name: '億載國小漁光分校', district: '安平區', address: '台南市安平區漁光路114號', note: '' },
+            { name: '永仁高中', district: '永康區', address: '台南市永康區忠孝路74號', note: '收費' },
+            { name: '大灣高中', district: '永康區', address: '台南市永康區大灣路835號', note: '周日/國定假日開放' },
+            { name: '新化國小', district: '新化區', address: '台南市新化區中正路423號', note: '' },
+            { name: '新化國中', district: '新化區', address: '台南市新化區忠孝路42號', note: '' }
+        ];
+        
+        let currentPosition = null;
+        let calculatedResults = [];
+        
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const statusDiv = document.getElementById('status');
+        const resultsDiv = document.getElementById('results');
+        const currentLocationSpan = document.getElementById('currentLocation');
+        const schoolListDiv = document.getElementById('schoolList');
+        const sortSelect = document.getElementById('sortSelect');
+        
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+        
+        function getLocation() {
+            showStatus('正在取得您的位置...', 'loading');
+            statusDiv.innerHTML = '<span class="loading-spinner"></span>正在取得您的位置...';
+            getLocationBtn.disabled = true;
+            
+            if (!navigator.geolocation) {
+                showStatus('您的瀏覽器不支援定位功能', 'error');
+                getLocationBtn.disabled = false;
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    currentPosition = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    currentLocationSpan.textContent = `緯度 ${currentPosition.lat.toFixed(6)}, 經度 ${currentPosition.lng.toFixed(6)}`;
+                    calculateDistances();
+                },
+                (error) => {
+                    let errorMsg = '無法取得位置：';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg += '您拒絕了定位請求。請在瀏覽器設定中允許定位權限。';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg += '位置資訊無法取得';
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg += '定位請求超時';
+                            break;
+                        default:
+                            errorMsg += '未知錯誤';
+                    }
+                    showStatus(errorMsg, 'error');
+                    getLocationBtn.disabled = false;
+                }
+            );
+        }
+        
+        function calculateDistances() {
+            showStatus('正在計算距離...', 'loading');
+            statusDiv.innerHTML = '<span class="loading-spinner"></span>正在計算到各學校的距離...';
+            
+            const destinations = schools.map(school => school.address);
+            
+            const service = new google.maps.DistanceMatrixService();
+            service.getDistanceMatrix({
+                origins: [currentPosition],
+                destinations: destinations,
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.METRIC,
+            }, (response, status) => {
+                if (status === 'OK') {
+                    processResults(response);
+                } else {
+                    showStatus(`計算失敗：${status}。請稍後再試。`, 'error');
+                    getLocationBtn.disabled = false;
+                }
+            });
+        }
+        
+        function processResults(response) {
+            const results = response.rows[0].elements;
+            calculatedResults = schools.map((school, index) => {
+                const result = results[index];
+                return {
+                    ...school,
+                    distance: result.status === 'OK' ? result.distance.value : null,
+                    distanceText: result.status === 'OK' ? result.distance.text : '無法計算',
+                    duration: result.status === 'OK' ? result.duration.value : null,
+                    durationText: result.status === 'OK' ? result.duration.text : '無法計算',
+                    status: result.status
+                };
+            });
+            
+            displayResults();
+            showStatus(`✓ 成功計算 ${calculatedResults.length} 所學校的距離`, 'success');
+            resultsDiv.classList.add('show');
+            getLocationBtn.style.display = 'none';
+            refreshBtn.style.display = 'inline-block';
+        }
+        
+        function displayResults() {
+            const sortValue = sortSelect.value;
+            let sorted = [...calculatedResults];
+            
+            if (sortValue === 'distance') {
+                sorted.sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
+            } else if (sortValue === 'duration') {
+                sorted.sort((a, b) => (a.duration || Infinity) - (b.duration || Infinity));
+            } else if (sortValue === 'district') {
+                sorted.sort((a, b) => a.district.localeCompare(b.district));
+            }
+            
+            schoolListDiv.innerHTML = sorted.map(school => `
+                <div class="school-item">
+                    <div class="school-district">${school.district}</div>
+                    <div class="school-header">
+                        <div class="school-name">${school.name}</div>
+                        ${school.note ? `<div class="school-note">${school.note}</div>` : ''}
+                    </div>
+                    <div class="distance-info">
+                        <span>🚗 <strong>${school.distanceText}</strong></span>
+                        <span>⏱️ <strong>${school.durationText}</strong></span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        getLocationBtn.addEventListener('click', getLocation);
+        refreshBtn.addEventListener('click', () => {
+            refreshBtn.style.display = 'none';
+            getLocationBtn.style.display = 'inline-block';
+            getLocationBtn.disabled = false;
+            resultsDiv.classList.remove('show');
+            statusDiv.className = 'status';
+        });
+        sortSelect.addEventListener('change', displayResults);
+        
+        function loadGoogleMapsAPI() {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+        
+        loadGoogleMapsAPI();
+    </script>
+</body>
+</html>
