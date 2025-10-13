@@ -184,6 +184,29 @@
             font-size: 16px;
         }
         
+        .navigate-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .navigate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .navigate-btn:active {
+            transform: translateY(0);
+        }
+        
         .sort-controls {
             display: flex;
             gap: 10px;
@@ -224,6 +247,8 @@
 </head>
 <body>
     <div class="container">
+        <img src="parking-info.jpg" alt="台南21所國高中小學校 2025假日校園開放停車" style="width: 100%; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+        
         <h1>🏫 台南學校開車距離計算器</h1>
         <p class="subtitle">自動取得您的位置，計算到各學校的開車距離與時間</p>
         
@@ -391,6 +416,9 @@
                 sorted.sort((a, b) => a.district.localeCompare(b.district));
             }
             
+            // 只顯示前 10 個
+            sorted = sorted.slice(0, 10);
+            
             schoolListDiv.innerHTML = sorted.map(school => `
                 <div class="school-item">
                     <div class="school-district">${school.district}</div>
@@ -402,8 +430,18 @@
                         <span>🚗 <strong>${school.distanceText}</strong></span>
                         <span>⏱️ <strong>${school.durationText}</strong></span>
                     </div>
+                    <button class="navigate-btn" onclick="openNavigation('${school.address}')">
+                        🧭 用 Google Maps 導航
+                    </button>
                 </div>
             `).join('');
+        }
+        
+        function openNavigation(address) {
+            // 使用 Google Maps URL scheme，在手機上會自動開啟 Google Maps App
+            const encodedAddress = encodeURIComponent(address);
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}&travelmode=driving`;
+            window.open(url, '_blank');
         }
         
         getLocationBtn.addEventListener('click', getLocation);
