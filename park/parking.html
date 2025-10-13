@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>台南學校開車距離計算器</title>
+    <title>台南假日學校停車距離計算器</title>
     <style>
         * {
             margin: 0;
@@ -249,8 +249,8 @@
     <div class="container">
         <img src="parking-info.jpg" alt="台南21所國高中小學校 2025假日校園開放停車" style="width: 100%; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
         
-        <h1>🏫 台南學校開車距離計算器</h1>
-        <p class="subtitle">自動取得您的位置，計算到各學校的開車距離與時間</p>
+        <h1>台南假日學校停車距離計算器</h1>
+        <p class="subtitle">自動取得當下位置，計算到各學校的開車距離與時間</p>
         
         <div class="button-group">
             <button id="getLocationBtn">📍 取得我的位置並計算距離</button>
@@ -261,7 +261,7 @@
         
         <div id="results" class="results">
             <div class="location-info">
-                <strong>📍 您的位置：</strong><span id="currentLocation"></span>
+                <strong>📍 目前位置：</strong><span id="currentLocation"></span>
             </div>
             
             <div class="sort-controls">
@@ -281,11 +281,11 @@
         const API_KEY = 'AIzaSyD3OziKOdWQcZ_ozelsG0U6nWnJoY3jN4I';
         
         const schools = [
-            { name: '忠義國小', district: '中西區', address: '台南市中西區忠義路二段2號', note: '收費' },
-            { name: '永福國小', district: '中西區', address: '台南市中西區永福路二段86號', note: '收費' },
-            { name: '協進國小', district: '中西區', address: '台南市中西區金華路四段17號', note: '收費' },
+            { name: '忠義國小', district: '中西區', address: '台南市中西區忠義路二段2號', note: '收費 20格 假日8-17時' },
+            { name: '永福國小', district: '中西區', address: '台南市中西區永福路二段86號', note: '收費 27格 假日8-20時' },
+            { name: '協進國小', district: '中西區', address: '台南市中西區金華路四段17號', note: '收費 83格 假日8-20時' },
             { name: '建興國中', district: '中西區', address: '台南市中西區府前路一段238號', note: '收費' },
-            { name: '進學國小', district: '中西區', address: '台南市中西區南寧街47號', note: '9/29不開放' },
+            { name: '進學國小', district: '中西區', address: '台南市中西區南寧街47號', note: '' },
             { name: '中山國中', district: '中西區', address: '台南市中西區南寧街45號', note: '' },
             { name: '勝利國小', district: '東區', address: '台南市東區勝利路10號', note: '六日開放' },
             { name: '博愛國小', district: '東區', address: '台南市東區博愛路167號', note: '' },
