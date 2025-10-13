@@ -67,15 +67,36 @@
             margin-bottom: 30px;
         }
 
+        .button-group {
+            margin-bottom: 20px;
+        }
+
+        .button-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .group-label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: block;
+            padding-left: 5px;
+        }
+
         .buttons-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .buttons-grid.single {
+            grid-template-columns: 1fr;
         }
 
         .calc-button {
             padding: 15px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -83,6 +104,7 @@
             border-radius: 10px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
         }
 
         .calc-button:hover {
@@ -163,29 +185,84 @@
         }
 
         @media (max-width: 480px) {
+            body {
+                padding: 15px;
+                align-items: flex-start;
+                padding-top: 30px;
+            }
+
             .container {
                 padding: 20px;
             }
 
             h1 {
-                font-size: 24px;
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+
+            .input-section {
+                margin-bottom: 25px;
+            }
+
+            .input-label {
+                font-size: 15px;
+                margin-bottom: 8px;
+            }
+
+            input[type="date"] {
+                padding: 12px;
+                font-size: 15px;
+            }
+
+            .button-group {
+                margin-bottom: 15px;
+            }
+
+            .group-label {
+                font-size: 13px;
+                margin-bottom: 8px;
             }
 
             .buttons-grid {
-                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
             }
 
             .calc-button {
-                padding: 12px;
-                font-size: 14px;
+                padding: 12px 8px;
+                font-size: 13px;
+            }
+
+            .result-section {
+                padding: 20px;
             }
 
             .result-date {
                 font-size: 20px;
+                line-height: 1.4;
             }
 
             .result-status {
                 font-size: 16px;
+                padding: 12px;
+            }
+
+            .holiday-name {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .calc-button {
+                padding: 10px 6px;
+                font-size: 12px;
+            }
+
+            .result-date {
+                font-size: 18px;
+            }
+
+            .result-status {
+                font-size: 15px;
             }
         }
     </style>
@@ -201,14 +278,30 @@
 
         <div class="buttons-section">
             <label class="input-label">選擇計算天數：</label>
-            <div class="buttons-grid">
-                <button class="calc-button" onclick="calculateDate(28)">一個月(28天)</button>
-                <button class="calc-button" onclick="calculateDate(56)">二個月(28天)</button>
-                <button class="calc-button" onclick="calculateDate(84)">三個月(28天)</button>
-                <button class="calc-button" onclick="calculateDate(30)">一個月(30天)</button>
-                <button class="calc-button" onclick="calculateDate(60)">二個月(30天)</button>
-                <button class="calc-button" onclick="calculateDate(90)">三個月(30天)</button>
-                <button class="calc-button" onclick="calculateDate(168)">六個月(28天)</button>
+            
+            <div class="button-group">
+                <span class="group-label">📆 28天計算</span>
+                <div class="buttons-grid">
+                    <button class="calc-button" onclick="calculateDate(28)">一個月<br>(28天)</button>
+                    <button class="calc-button" onclick="calculateDate(56)">二個月<br>(56天)</button>
+                    <button class="calc-button" onclick="calculateDate(84)">三個月<br>(84天)</button>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <span class="group-label">📆 30天計算</span>
+                <div class="buttons-grid">
+                    <button class="calc-button" onclick="calculateDate(30)">一個月<br>(30天)</button>
+                    <button class="calc-button" onclick="calculateDate(60)">二個月<br>(60天)</button>
+                    <button class="calc-button" onclick="calculateDate(90)">三個月<br>(90天)</button>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <span class="group-label">📆 長期計算</span>
+                <div class="buttons-grid single">
+                    <button class="calc-button" onclick="calculateDate(168)">六個月 (168天)</button>
+                </div>
             </div>
         </div>
 
@@ -218,12 +311,10 @@
     </div>
 
     <script>
-        // 設定今天的日期為預設值
         const today = new Date();
         const todayStr = today.toISOString().split('T')[0];
         document.getElementById('startDate').value = todayStr;
 
-        // 台灣政府行事曆資料快取
         const holidayCache = {};
 
         async function fetchTaiwanHolidays(year) {
@@ -232,7 +323,6 @@
             }
 
             try {
-                // 使用 CDN 來源的台灣行事曆 API
                 const response = await fetch(`https://cdn.jsdelivr.net/gh/ruyut/TaiwanCalendar/data/${year}.json`);
                 if (!response.ok) {
                     throw new Error('無法取得行事曆資料');
@@ -267,7 +357,6 @@
             if (holidays) {
                 for (const holiday of holidays) {
                     if (holiday.date === dateStr) {
-                        // 檢查是否為補班日
                         const isMakeupWorkday = holiday.description && 
                             (holiday.description.includes('補行上班') || 
                              holiday.description.includes('調整上班'));
@@ -281,7 +370,6 @@
                 }
             }
             
-            // 如果 API 沒有這一天的資料，檢查是否為週末
             if (isWeekend(date)) {
                 return {
                     isHoliday: true,
@@ -323,7 +411,6 @@
 
             let statusHTML = '';
             if (holidayStatus.isMakeupWorkday) {
-                // 補班日
                 statusHTML = `
                     <div class="result-status status-makeup">
                         ⚠️ 補班日
@@ -331,7 +418,6 @@
                     </div>
                 `;
             } else if (holidayStatus.isHoliday) {
-                // 假日
                 statusHTML = `
                     <div class="result-status status-holiday">
                         ✅ 假日
@@ -339,7 +425,6 @@
                     </div>
                 `;
             } else {
-                // 工作日
                 statusHTML = `
                     <div class="result-status status-workday">
                         📋 工作日
@@ -355,7 +440,6 @@
             `;
         }
 
-        // 預載今年和明年的假日資料
         (function preloadHolidays() {
             const currentYear = new Date().getFullYear();
             fetchTaiwanHolidays(currentYear);
