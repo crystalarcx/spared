@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日期計算器</title>
+    <title>台灣行事曆日期計算器</title>
     <link rel="apple-touch-icon" sizes="1024x1024" href="touchicon.png"> 
     <style>
         * {
@@ -330,7 +330,7 @@
             }
 
             .input-section {
-                margin-bottom: 25px;
+                margin-bottom: 20px;
             }
 
             .input-label {
@@ -340,6 +340,20 @@
             input[type="date"] {
                 padding: 14px 16px;
                 font-size: 15px;
+            }
+
+            .result-section {
+                padding: 20px;
+                min-height: 180px;
+                margin-bottom: 25px;
+                display: block;
+                opacity: 0;
+                visibility: hidden;
+            }
+
+            .result-section.show {
+                opacity: 1;
+                visibility: visible;
             }
 
             .section-title {
@@ -358,21 +372,25 @@
             }
 
             .buttons-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
             }
 
             .buttons-grid.double {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .calc-button {
-                padding: 14px 12px;
-                font-size: 14px;
-            }
-
-            .result-section {
-                padding: 20px;
+                padding: 0;
+                font-size: 12px;
+                aspect-ratio: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                line-height: 1.3;
+                white-space: pre-wrap;
+                min-height: 70px;
             }
 
             .result-date {
@@ -426,7 +444,7 @@
             }
 
             .input-section {
-                margin-bottom: 20px;
+                margin-bottom: 18px;
             }
 
             .input-label {
@@ -439,8 +457,14 @@
                 font-size: 14px;
             }
 
+            .result-section {
+                padding: 18px;
+                min-height: 170px;
+                margin-bottom: 20px;
+            }
+
             .buttons-section {
-                margin-bottom: 25px;
+                margin-bottom: 0;
             }
 
             .section-title {
@@ -458,13 +482,13 @@
                 margin-bottom: 10px;
             }
 
-            .calc-button {
-                padding: 13px 10px;
-                font-size: 13px;
+            .buttons-grid {
+                gap: 6px;
             }
 
-            .result-section {
-                padding: 18px;
+            .calc-button {
+                font-size: 11px;
+                min-height: 65px;
             }
 
             .result-date {
@@ -492,9 +516,17 @@
                 font-size: 20px;
             }
 
+            .buttons-grid {
+                gap: 5px;
+            }
+
             .calc-button {
-                padding: 12px 8px;
-                font-size: 12px;
+                font-size: 10px;
+                min-height: 60px;
+            }
+
+            .result-section {
+                min-height: 160px;
             }
 
             .result-date {
@@ -515,6 +547,10 @@
         <div class="input-section">
             <label class="input-label">選擇起始日期</label>
             <input type="date" id="startDate">
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div id="resultContent"></div>
         </div>
 
         <div class="buttons-section">
@@ -545,10 +581,6 @@
                     <button class="calc-button subtract" onclick="calculateDate(-168)">➖ 減六個月<br>(168天)</button>
                 </div>
             </div>
-        </div>
-
-        <div class="result-section" id="resultSection">
-            <div id="resultContent"></div>
         </div>
     </div>
 
