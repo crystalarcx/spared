@@ -19,56 +19,133 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: backgroundMove 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes backgroundMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 600px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+            max-width: 650px;
             width: 100%;
-            padding: 30px;
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h1 {
-            color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 28px;
+            margin-bottom: 35px;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(102, 126, 234, 0.2);
         }
 
         .input-section {
-            margin-bottom: 30px;
+            margin-bottom: 35px;
+            position: relative;
         }
 
         .input-label {
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
+            font-size: 17px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 12px;
             display: block;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-label::before {
+            content: '📍';
+            font-size: 20px;
         }
 
         input[type="date"] {
             width: 100%;
-            padding: 15px;
+            padding: 16px 20px;
             font-size: 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            transition: border-color 0.3s;
+            border: 2px solid #e8e8e8;
+            border-radius: 12px;
+            transition: all 0.3s;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         input[type="date"]:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
         }
 
         .buttons-section {
-            margin-bottom: 30px;
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 5px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
         }
 
         .button-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            border-radius: 15px;
+            border: 2px solid rgba(102, 126, 234, 0.1);
         }
 
         .button-group:last-child {
@@ -76,12 +153,15 @@
         }
 
         .group-label {
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 700;
             color: #667eea;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             display: block;
             padding-left: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .buttons-grid {
@@ -90,49 +170,81 @@
             gap: 12px;
         }
 
-        .buttons-grid.single {
-            grid-template-columns: 1fr;
+        .buttons-grid.double {
+            grid-template-columns: repeat(2, 1fr);
         }
 
         .calc-button {
-            padding: 15px;
+            padding: 16px;
             font-size: 15px;
-            font-weight: bold;
+            font-weight: 700;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s;
             white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calc-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .calc-button:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .calc-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
         .calc-button:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
+        }
+
+        .calc-button.subtract {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+        }
+
+        .calc-button.subtract:hover {
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
         }
 
         .result-section {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 18px;
+            padding: 30px;
             min-height: 150px;
             display: none;
+            border: 2px solid rgba(102, 126, 234, 0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
         }
 
         .result-section.show {
             display: block;
-            animation: fadeIn 0.5s;
+            animation: fadeIn 0.6s ease-out;
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(15px);
             }
             to {
                 opacity: 1;
@@ -141,47 +253,63 @@
         }
 
         .result-date {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
+            font-size: 26px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 18px;
+            text-align: center;
+            letter-spacing: 0.5px;
         }
 
         .result-status {
             font-size: 18px;
-            padding: 15px;
-            border-radius: 10px;
-            font-weight: bold;
+            padding: 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-align: center;
+            transition: all 0.3s;
         }
 
         .status-holiday {
-            background: #ffe6e6;
+            background: linear-gradient(135deg, #ffe6e6 0%, #ffd1d1 100%);
             color: #d32f2f;
-            border-left: 5px solid #d32f2f;
+            border-left: 6px solid #d32f2f;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.2);
         }
 
         .status-workday {
-            background: #e8f5e9;
-            color: #388e3c;
-            border-left: 5px solid #388e3c;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            color: #2e7d32;
+            border-left: 6px solid #2e7d32;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.2);
         }
 
         .status-makeup {
-            background: #fff3e0;
-            color: #f57c00;
-            border-left: 5px solid #f57c00;
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            color: #e65100;
+            border-left: 6px solid #e65100;
+            box-shadow: 0 4px 15px rgba(230, 81, 0, 0.2);
         }
 
         .holiday-name {
-            margin-top: 10px;
+            margin-top: 12px;
             font-size: 16px;
-            color: #666;
+            color: inherit;
+            opacity: 0.9;
+            font-weight: 600;
         }
 
         .loading {
             text-align: center;
             color: #667eea;
             font-size: 16px;
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         @media (max-width: 480px) {
@@ -192,12 +320,12 @@
             }
 
             .container {
-                padding: 20px;
+                padding: 25px;
             }
 
             h1 {
-                font-size: 22px;
-                margin-bottom: 20px;
+                font-size: 24px;
+                margin-bottom: 25px;
             }
 
             .input-section {
@@ -206,21 +334,26 @@
 
             .input-label {
                 font-size: 15px;
-                margin-bottom: 8px;
             }
 
             input[type="date"] {
-                padding: 12px;
+                padding: 14px 16px;
                 font-size: 15px;
             }
 
-            .button-group {
+            .section-title {
+                font-size: 16px;
                 margin-bottom: 15px;
             }
 
+            .button-group {
+                margin-bottom: 20px;
+                padding: 15px;
+            }
+
             .group-label {
-                font-size: 13px;
-                margin-bottom: 8px;
+                font-size: 14px;
+                margin-bottom: 12px;
             }
 
             .buttons-grid {
@@ -228,7 +361,7 @@
             }
 
             .calc-button {
-                padding: 12px 8px;
+                padding: 13px 8px;
                 font-size: 13px;
             }
 
@@ -243,26 +376,11 @@
 
             .result-status {
                 font-size: 16px;
-                padding: 12px;
+                padding: 15px;
             }
 
             .holiday-name {
                 font-size: 14px;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .calc-button {
-                padding: 10px 6px;
-                font-size: 12px;
-            }
-
-            .result-date {
-                font-size: 18px;
-            }
-
-            .result-status {
-                font-size: 15px;
             }
         }
     </style>
@@ -272,12 +390,12 @@
         <h1>📅 台灣行事曆日期計算器</h1>
         
         <div class="input-section">
-            <label class="input-label">選擇起始日期：</label>
+            <label class="input-label">選擇起始日期</label>
             <input type="date" id="startDate">
         </div>
 
         <div class="buttons-section">
-            <label class="input-label">選擇計算天數：</label>
+            <div class="section-title">選擇計算天數</div>
             
             <div class="button-group">
                 <span class="group-label">📆 28天計算</span>
@@ -299,8 +417,9 @@
 
             <div class="button-group">
                 <span class="group-label">📆 長期計算</span>
-                <div class="buttons-grid single">
-                    <button class="calc-button" onclick="calculateDate(168)">六個月 (168天)</button>
+                <div class="buttons-grid double">
+                    <button class="calc-button" onclick="calculateDate(168)">➕ 六個月<br>(168天)</button>
+                    <button class="calc-button subtract" onclick="calculateDate(-168)">➖ 減六個月<br>(168天)</button>
                 </div>
             </div>
         </div>
@@ -395,7 +514,7 @@
             const resultSection = document.getElementById('resultSection');
             const resultContent = document.getElementById('resultContent');
             
-            resultContent.innerHTML = '<div class="loading">計算中...</div>';
+            resultContent.innerHTML = '<div class="loading">⏳ 計算中...</div>';
             resultSection.classList.add('show');
 
             const startDate = new Date(startDateInput + 'T00:00:00');
