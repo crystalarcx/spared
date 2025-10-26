@@ -224,15 +224,18 @@
                 </div>
             </div>
             <div class="market-time" id="uk-time"></div>
+            <button class="app-button fubon" onclick="openFubonApp()">
+                <span>📱</span>
+                <span>開啟 富邦e點通</span>
+            </button>
         </div>
     </div>
 
     <script>
         // 開啟 thinkorswim App
         function openThinkorswim() {
-            // thinkorswim 的 URL Scheme
-            // 如果 App 未安裝，會嘗試開啟 App Store
-            const appUrl = 'tdameritrade://';
+            // thinkorswim 的正確 URL Scheme
+            const appUrl = 'tos://';
             const fallbackUrl = 'https://apps.apple.com/us/app/thinkorswim-mobile/id472203165';
             
             // 嘗試開啟 App
@@ -242,6 +245,21 @@
             setTimeout(function() {
                 window.location.href = fallbackUrl;
             }, 2000);
+        }
+        
+        // 開啟富邦e點通 App
+        function openFubonApp() {
+            // 富邦e點通的正確 URL Scheme
+            const appUrl = 'touchstockfbs://';
+            const fallbackUrl = 'https://apps.apple.com/tw/app/%E5%AF%8C%E9%82%A6e%E9%BB%9E%E9%80%9A/id1446690327';
+            
+            // 嘗試開啟 App
+            window.location.href = appUrl;
+            
+            // 如果 1.5 秒後還在頁面上，表示 App 未安裝，跳轉到 App Store
+            setTimeout(function() {
+                window.location.href = fallbackUrl;
+            }, 1500);
         }
         
         // 判斷是否為夏令時間 (美國)
