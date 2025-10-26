@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>美英股開盤時間</title>
+    <title>台灣時間與美英股市狀態</title>
     <style>
         * {
             margin: 0;
@@ -193,7 +193,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>美英股開盤時間</h1>
+        <h1>🕐 台灣時間與美英股市狀態</h1>
         
         <div class="clock">
             <div class="time" id="time">--:--:--</div>
@@ -235,31 +235,13 @@
         // 開啟 thinkorswim App
         function openThinkorswim() {
             // thinkorswim 的正確 URL Scheme
-            const appUrl = 'tos://';
-            const fallbackUrl = 'https://apps.apple.com/us/app/thinkorswim-mobile/id472203165';
-            
-            // 嘗試開啟 App
-            window.location.href = appUrl;
-            
-            // 如果 2 秒後還在頁面上，表示 App 未安裝，跳轉到 App Store
-            setTimeout(function() {
-                window.location.href = fallbackUrl;
-            }, 2000);
+            window.location.href = 'tos://';
         }
         
         // 開啟富邦e點通 App
         function openFubonApp() {
             // 富邦e點通的正確 URL Scheme
-            const appUrl = 'touchstockfbs://';
-            const fallbackUrl = 'https://apps.apple.com/tw/app/%E5%AF%8C%E9%82%A6e%E9%BB%9E%E9%80%9A/id1446690327';
-            
-            // 嘗試開啟 App
-            window.location.href = appUrl;
-            
-            // 如果 1.5 秒後還在頁面上，表示 App 未安裝，跳轉到 App Store
-            setTimeout(function() {
-                window.location.href = fallbackUrl;
-            }, 1500);
+            window.location.href = 'touchstockfbs://';
         }
         
         // 判斷是否為夏令時間 (美國)
