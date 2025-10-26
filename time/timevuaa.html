@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台灣時間與美英股市狀態</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.98);
+            min-height: 100vh;
+            padding: env(safe-area-inset-top, 20px) 16px env(safe-area-inset-bottom, 20px) 16px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 24px;
+            font-size: 26px;
+            font-weight: 700;
+            padding-top: 12px;
+        }
+        
+        .clock {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 32px 20px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+        
+        .time {
+            font-size: 56px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .date {
+            font-size: 17px;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+        
+        .market {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        
+        .market:active {
+            transform: scale(0.98);
+            transition: transform 0.1s;
+        }
+        
+        .market-header {
+            margin-bottom: 12px;
+        }
+        
+        .market-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            line-height: 1.3;
+            margin-bottom: 12px;
+        }
+        
+        .market-status-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .market-status {
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+        
+        .status-open {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status-pre {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .status-post {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .status-closed {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .dst-indicator {
+            padding: 4px 10px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .market-time {
+            color: #6b7280;
+            font-size: 15px;
+            margin-top: 4px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+        
+        .stock-price {
+            margin-top: 12px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stock-symbol {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+        
+        .price-info {
+            text-align: right;
+        }
+        
+        .current-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .price-change {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        
+        .price-change.positive {
+            color: #10b981;
+        }
+        
+        .price-change.negative {
+            color: #ef4444;
+        }
+        
+        .price-loading {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+        
+        .app-button {
+            margin-top: 12px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #00a651 0%, #008542 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 165, 81, 0.3);
+            cursor: pointer;
+        }
+        
+        .app-button:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(0, 165, 81, 0.3);
+        }
+        
+        .app-button.fubon {
+            background: linear-gradient(135deg, #0066cc 0%, #004999 100%);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+        
+        .app-button.fubon:active {
+            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.3);
+        }
+        
+        .market:last-child {
+            margin-bottom: 0;
+        }
+        
+        @media (max-width: 390px) {
+            .time {
+                font-size: 48px;
+            }
+            
+            .market-name {
+                font-size: 20px;
+            }
+            
+            .market-status {
+                font-size: 14px;
+                padding: 7px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🕐 台灣時間與美英股市狀態</h1>
+        
+        <div class="clock">
+            <div class="time" id="time">--:--:--</div>
+            <div class="date" id="date">----年--月--日 星期-</div>
+        </div>
+        
+        <div class="market" id="us-market">
+            <div class="market-header">
+                <div class="market-name">🇺🇸 美股<br><span style="font-size: 15px; font-weight: 500; color: #6b7280;">嘉信證券</span></div>
+                <div class="market-status-wrapper">
+                    <span class="market-status" id="us-status">載入中...</span>
+                    <span class="dst-indicator" id="us-dst"></span>
+                </div>
+            </div>
+            <div class="market-time" id="us-time"></div>
+            <button class="app-button" onclick="openThinkorswim()">
+                <span>📱</span>
+                <span>開啟 thinkorswim</span>
+            </button>
+        </div>
+        
+        <div class="market" id="uk-market">
+            <div class="market-header">
+                <div class="market-name">🇬🇧 英股<br><span style="font-size: 15px; font-weight: 500; color: #6b7280;">倫敦證交所</span></div>
+                <div class="market-status-wrapper">
+                    <span class="market-status" id="uk-status">載入中...</span>
+                    <span class="dst-indicator" id="uk-dst"></span>
+                </div>
+            </div>
+            <div class="market-time" id="uk-time"></div>
+            <div class="stock-price">
+                <div>
+                    <div class="stock-symbol">VUAA.L</div>
+                    <div style="font-size: 12px; color: #9ca3af; margin-top: 2px;">Vanguard S&P 500</div>
+                </div>
+                <div class="price-info">
+                    <div class="current-price" id="vuaa-price">--</div>
+                    <div class="price-change" id="vuaa-change">--</div>
+                </div>
+            </div>
+            <button class="app-button fubon" onclick="openFubonApp()">
+                <span>📱</span>
+                <span>開啟 富邦e點通</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 開啟 thinkorswim App
+        function openThinkorswim() {
+            // thinkorswim 的正確 URL Scheme
+            window.location.href = 'tos://';
+        }
+        
+        // 開啟富邦e點通 App
+        function openFubonApp() {
+            // 富邦e點通的正確 URL Scheme
+            window.location.href = 'touchstockfbs://';
+        }
+        
+        // 獲取 VUAA.L 股價
+        async function fetchVUAAPrice() {
+            try {
+                // 使用 Yahoo Finance API
+                const symbol = 'VUAA.L';
+                const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.chart && data.chart.result && data.chart.result[0]) {
+                    const result = data.chart.result[0];
+                    const quote = result.meta;
+                    
+                    const currentPrice = quote.regularMarketPrice;
+                    const previousClose = quote.chartPreviousClose;
+                    const change = currentPrice - previousClose;
+                    const changePercent = (change / previousClose) * 100;
+                    
+                    // 更新價格顯示
+                    document.getElementById('vuaa-price').textContent = 
+                        `£${currentPrice.toFixed(2)}`;
+                    
+                    const changeEl = document.getElementById('vuaa-change');
+                    const changeText = `${change >= 0 ? '+' : ''}${change.toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`;
+                    changeEl.textContent = changeText;
+                    changeEl.className = 'price-change ' + (change >= 0 ? 'positive' : 'negative');
+                } else {
+                    throw new Error('無法取得股價資料');
+                }
+            } catch (error) {
+                console.error('獲取股價失敗:', error);
+                document.getElementById('vuaa-price').textContent = '無法取得';
+                document.getElementById('vuaa-change').textContent = '--';
+            }
+        }
+        
+        // 判斷是否為夏令時間 (美國)
+        function isUSDST(date) {
+            const year = date.getUTCFullYear();
+            // 美國夏令時：3月第二個星期日 02:00 ~ 11月第一個星期日 02:00
+            const marchSecondSunday = new Date(Date.UTC(year, 2, 1, 2, 0, 0));
+            marchSecondSunday.setUTCDate(1 + (7 - marchSecondSunday.getUTCDay()) + 7);
+            
+            const novemberFirstSunday = new Date(Date.UTC(year, 10, 1, 2, 0, 0));
+            novemberFirstSunday.setUTCDate(1 + (7 - novemberFirstSunday.getUTCDay()));
+            
+            return date >= marchSecondSunday && date < novemberFirstSunday;
+        }
+        
+        // 判斷是否為夏令時間 (英國)
+        function isUKDST(date) {
+            const year = date.getUTCFullYear();
+            // 英國夏令時：3月最後一個星期日 01:00 ~ 10月最後一個星期日 01:00
+            const marchLastSunday = new Date(Date.UTC(year, 3, 1, 1, 0, 0));
+            marchLastSunday.setUTCDate(0); // 上個月最後一天
+            marchLastSunday.setUTCDate(marchLastSunday.getUTCDate() - marchLastSunday.getUTCDay());
+            
+            const octoberLastSunday = new Date(Date.UTC(year, 10, 1, 1, 0, 0));
+            octoberLastSunday.setUTCDate(0);
+            octoberLastSunday.setUTCDate(octoberLastSunday.getUTCDate() - octoberLastSunday.getUTCDay());
+            
+            return date >= marchLastSunday && date < octoberLastSunday;
+        }
+        
+        function getMarketStatus() {
+            const now = new Date();
+            const taiwanTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+            
+            // 美股時間 (考慮夏令時間)
+            const isDST_US = isUSDST(now);
+            const usOffset = isDST_US ? -4 : -5; // EDT: UTC-4, EST: UTC-5
+            const usTime = new Date(now.getTime() + (usOffset * 60 + 480) * 60000); // 480 = 台灣 UTC+8
+            const usHour = usTime.getHours();
+            const usMinute = usTime.getMinutes();
+            const usTotalMinutes = usHour * 60 + usMinute;
+            const usDay = usTime.getDay();
+            
+            // 英股時間 (考慮夏令時間)
+            const isDST_UK = isUKDST(now);
+            const ukOffset = isDST_UK ? 1 : 0; // BST: UTC+1, GMT: UTC+0
+            const ukTime = new Date(now.getTime() + (ukOffset * 60 - 480) * 60000);
+            const ukHour = ukTime.getHours();
+            const ukMinute = ukTime.getMinutes();
+            const ukTotalMinutes = ukHour * 60 + ukMinute;
+            const ukDay = ukTime.getDay();
+            
+            // 美股狀態判斷 (週一到週五)
+            let usStatus, usStatusText, usTimeInfo;
+            if (usDay === 0 || usDay === 6) {
+                usStatus = 'status-closed';
+                usStatusText = '休市';
+                usTimeInfo = `當地時間: ${usTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})}`;
+            } else {
+                // 盤前: 04:00-09:30 (240-570分鐘)
+                // 盤中: 09:30-16:00 (570-960分鐘)
+                // 盤後: 16:00-20:00 (960-1200分鐘)
+                if (usTotalMinutes >= 240 && usTotalMinutes < 570) {
+                    usStatus = 'status-pre';
+                    usStatusText = '盤前交易';
+                    usTimeInfo = `當地時間: ${usTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})} | 盤前 04:00-09:30`;
+                } else if (usTotalMinutes >= 570 && usTotalMinutes < 960) {
+                    usStatus = 'status-open';
+                    usStatusText = '開盤中';
+                    usTimeInfo = `當地時間: ${usTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})} | 開盤 09:30-16:00`;
+                } else if (usTotalMinutes >= 960 && usTotalMinutes < 1200) {
+                    usStatus = 'status-post';
+                    usStatusText = '盤後交易';
+                    usTimeInfo = `當地時間: ${usTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})} | 盤後 16:00-20:00`;
+                } else {
+                    usStatus = 'status-closed';
+                    usStatusText = '收盤';
+                    usTimeInfo = `當地時間: ${usTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})}`;
+                }
+            }
+            
+            // 英股狀態判斷 (週一到週五)
+            let ukStatus, ukStatusText, ukTimeInfo;
+            if (ukDay === 0 || ukDay === 6) {
+                ukStatus = 'status-closed';
+                ukStatusText = '休市';
+                ukTimeInfo = `當地時間: ${ukTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})}`;
+            } else {
+                // 開盤: 08:00-16:30 (480-990分鐘)
+                if (ukTotalMinutes >= 480 && ukTotalMinutes < 990) {
+                    ukStatus = 'status-open';
+                    ukStatusText = '開盤中';
+                    ukTimeInfo = `當地時間: ${ukTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})} | 開盤 08:00-16:30`;
+                } else {
+                    ukStatus = 'status-closed';
+                    ukStatusText = '收盤';
+                    ukTimeInfo = `當地時間: ${ukTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})}`;
+                }
+            }
+            
+            return {
+                us: { status: usStatus, text: usStatusText, time: usTimeInfo, dst: isDST_US },
+                uk: { status: ukStatus, text: ukStatusText, time: ukTimeInfo, dst: isDST_UK }
+            };
+        }
+        
+        function updateClock() {
+            const now = new Date();
+            const taiwanTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+            
+            // 更新台灣時間
+            const timeStr = taiwanTime.toLocaleTimeString('zh-TW', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: false 
+            });
+            
+            const dateStr = taiwanTime.toLocaleDateString('zh-TW', { 
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            
+            document.getElementById('time').textContent = timeStr;
+            document.getElementById('date').textContent = dateStr;
+            
+            // 更新市場狀態
+            const markets = getMarketStatus();
+            
+            // 更新美股
+            const usStatusEl = document.getElementById('us-status');
+            usStatusEl.className = 'market-status ' + markets.us.status;
+            usStatusEl.textContent = markets.us.text;
+            document.getElementById('us-dst').textContent = markets.us.dst ? '夏令時間' : '標準時間';
+            document.getElementById('us-time').textContent = markets.us.time;
+            
+            // 更新英股
+            const ukStatusEl = document.getElementById('uk-status');
+            ukStatusEl.className = 'market-status ' + markets.uk.status;
+            ukStatusEl.textContent = markets.uk.text;
+            document.getElementById('uk-dst').textContent = markets.uk.dst ? '夏令時間' : '標準時間';
+            document.getElementById('uk-time').textContent = markets.uk.time;
+        }
+        
+        // 初始更新
+        updateClock();
+        
+        // 獲取股價（初次載入和每5分鐘更新一次）
+        fetchVUAAPrice();
+        setInterval(fetchVUAAPrice, 5 * 60 * 1000);
+        
+        // 每秒更新時鐘
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
