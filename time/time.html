@@ -252,7 +252,7 @@
         // 判斷是否為夏令時間 (美國)
         function isUSDST(date) {
             const year = date.getUTCFullYear();
-            // 美國夏令時：3月第二個星期日 02:00 ~ 11月第一個星期日 02:00
+            // 美國夏令時:3月第二個星期日 02:00 ~ 11月第一個星期日 02:00
             const marchSecondSunday = new Date(Date.UTC(year, 2, 1, 2, 0, 0));
             marchSecondSunday.setUTCDate(1 + (7 - marchSecondSunday.getUTCDay()) + 7);
             
@@ -265,7 +265,7 @@
         // 判斷是否為夏令時間 (英國)
         function isUKDST(date) {
             const year = date.getUTCFullYear();
-            // 英國夏令時：3月最後一個星期日 01:00 ~ 10月最後一個星期日 01:00
+            // 英國夏令時:3月最後一個星期日 01:00 ~ 10月最後一個星期日 01:00
             const marchLastSunday = new Date(Date.UTC(year, 3, 1, 1, 0, 0));
             marchLastSunday.setUTCDate(0);
             marchLastSunday.setUTCDate(marchLastSunday.getUTCDate() - marchLastSunday.getUTCDay());
@@ -316,10 +316,10 @@
             const ukEnd = isDST_UK ? '23:30' : '隔日00:30';  // 16:30 英國
             
             // 美股時間表 (台灣時間)
-            const usSchedule = `台灣時間 盤前 ${usPreStart}-${usPreEnd} | 開盤 ${usMainStart}-${usMainEnd}`;
+            const usSchedule = `台灣時間<br>盤前 ${usPreStart}-${usPreEnd} | 開盤 ${usMainStart}-${usMainEnd}`;
             
             // 英股時間表 (台灣時間)
-            const ukSchedule = `台灣時間 開盤 ${ukStart}-${ukEnd}`;
+            const ukSchedule = `台灣時間<br>開盤 ${ukStart}-${ukEnd}`;
             
             // 美股狀態判斷 (週一到週五)
             let usStatus, usStatusText, usTimeInfo;
@@ -406,7 +406,7 @@
             usStatusEl.textContent = markets.us.text;
             document.getElementById('us-dst').textContent = markets.us.dst ? '夏令時間' : '標準時間';
             document.getElementById('us-time').textContent = markets.us.time;
-            document.getElementById('us-schedule').textContent = markets.us.schedule;
+            document.getElementById('us-schedule').innerHTML = markets.us.schedule;
             
             // 更新英股
             const ukStatusEl = document.getElementById('uk-status');
@@ -414,7 +414,7 @@
             ukStatusEl.textContent = markets.uk.text;
             document.getElementById('uk-dst').textContent = markets.uk.dst ? '夏令時間' : '標準時間';
             document.getElementById('uk-time').textContent = markets.uk.time;
-            document.getElementById('uk-schedule').textContent = markets.uk.schedule;
+            document.getElementById('uk-schedule').innerHTML = markets.uk.schedule;
         }
         
         // 初始更新
