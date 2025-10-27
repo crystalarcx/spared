@@ -220,7 +220,7 @@
         <div class="market" id="uk-market">
             <div class="market-header">
                 <div class="market-name">🇬🇧 英股<br><span style="font-size: 15px; font-weight: 500; color: #6b7280;">倫敦證交所</span></div>
-                <div style="font-size: 13px; color: #9ca3af; margin-bottom: 8px;">開盤 08:00-16:30</div>
+                <div style="font-size: 13px; color: #9ca3af; margin-bottom: 8px;" id="uk-schedule">載入中...</div>
                 <div class="market-status-wrapper">
                     <span class="market-status" id="uk-status">載入中...</span>
                     <span class="dst-indicator" id="uk-dst"></span>
@@ -290,6 +290,16 @@
             const usTotalMinutes = usHour * 60 + usMinute;
             const usDay = usTime.getDay();
             
+            // 計算美股台灣時間 (美東時間 + 12或13小時 = 台灣時間)
+            // EDT (夏令時): 台灣比美東快12小時
+            // EST (標準時): 台灣比美東快13小時
+            const usPreStart = isDST_US ? '16:00' : '17:00';     // 04:00 美東
+            const usPreEnd = isDST_US ? '21:30' : '22:30';       // 09:30 美東
+            const usMainStart = usPreEnd;                         // 09:30 美東
+            const usMainEnd = isDST_US ? '隔日04:00' : '隔日05:00';   // 16:00 美東
+            const usPostStart = usMainEnd;                        // 16:00 美東
+            const usPostEnd = isDST_US ? '隔日08:00' : '隔日09:00';   // 20:00 美東
+            
             // 英股時間 (考慮夏令時間)
             const isDST_UK = isUKDST(now);
             const ukTimeDiff = isDST_UK ? -7 : -8; // 台灣比英國快7或8小時
@@ -298,6 +308,18 @@
             const ukMinute = ukTime.getMinutes();
             const ukTotalMinutes = ukHour * 60 + ukMinute;
             const ukDay = ukTime.getDay();
+            
+            // 計算英股台灣時間 (英國時間 + 7或8小時 = 台灣時間)
+            // BST (夏令時): 台灣比英國快7小時
+            // GMT (標準時): 台灣比英國快8小時
+            const ukStart = isDST_UK ? '15:00' : '16:00';    // 08:00 英國
+            const ukEnd = isDST_UK ? '23:30' : '隔日00:30';  // 16:30 英國
+            
+            // 美股時間表 (台灣時間)
+            const usSchedule = `盤前 ${usPreStart}-${usPreEnd} | 開盤 ${usMainStart}-${usMainEnd} | 盤後 ${usPostStart}-${usPostEnd}`;
+            
+            // 英股時間表 (台灣時間)
+            const ukSchedule = `開盤 ${ukStart}-${ukEnd}`;
             
             // 美股狀態判斷 (週一到週五)
             let usStatus, usStatusText, usTimeInfo;
@@ -348,8 +370,8 @@
             }
             
             return {
-                us: { status: usStatus, text: usStatusText, time: usTimeInfo, dst: isDST_US },
-                uk: { status: ukStatus, text: ukStatusText, time: ukTimeInfo, dst: isDST_UK }
+                us: { status: usStatus, text: usStatusText, time: usTimeInfo, dst: isDST_US, schedule: usSchedule },
+                uk: { status: ukStatus, text: ukStatusText, time: ukTimeInfo, dst: isDST_UK, schedule: ukSchedule }
             };
         }
         
@@ -384,6 +406,7 @@
             usStatusEl.textContent = markets.us.text;
             document.getElementById('us-dst').textContent = markets.us.dst ? '夏令時間' : '標準時間';
             document.getElementById('us-time').textContent = markets.us.time;
+            document.getElementById('us-schedule').textContent = markets.us.schedule;
             
             // 更新英股
             const ukStatusEl = document.getElementById('uk-status');
@@ -391,6 +414,7 @@
             ukStatusEl.textContent = markets.uk.text;
             document.getElementById('uk-dst').textContent = markets.uk.dst ? '夏令時間' : '標準時間';
             document.getElementById('uk-time').textContent = markets.uk.time;
+            document.getElementById('uk-schedule').textContent = markets.uk.schedule;
         }
         
         // 初始更新
