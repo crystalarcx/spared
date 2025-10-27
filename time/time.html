@@ -215,6 +215,10 @@
                 <span>📱</span>
                 <span>開啟 thinkorswim</span>
             </button>
+            <button class="app-button" style="background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%); box-shadow: 0 4px 12px rgba(255, 165, 0, 0.3); margin-top: 8px;" onclick="openFutu()">
+                <span>📱</span>
+                <span>開啟 富途牛牛</span>
+            </button>
         </div>
         
         <div class="market" id="uk-market">
@@ -242,6 +246,11 @@
         // 開啟 thinkorswim App
         function openThinkorswim() {
             window.location.href = 'tos://';
+        }
+        
+        // 開啟富途牛牛 App
+        function openFutu() {
+            window.location.href = 'futunn://';
         }
         
         // 開啟富邦e點通 App
@@ -382,8 +391,7 @@
             // 更新台灣時間
             const timeStr = taiwanTime.toLocaleTimeString('zh-TW', { 
                 hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit',
+                minute: '2-digit',
                 hour12: false 
             });
             
