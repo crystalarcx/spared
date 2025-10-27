@@ -235,13 +235,11 @@
     <script>
         // 開啟 thinkorswim App
         function openThinkorswim() {
-            // thinkorswim 的正確 URL Scheme
             window.location.href = 'tos://';
         }
         
         // 開啟富邦e點通 App
         function openFubonApp() {
-            // 富邦e點通的正確 URL Scheme
             window.location.href = 'touchstockfbs://';
         }
         
@@ -263,7 +261,7 @@
             const year = date.getUTCFullYear();
             // 英國夏令時：3月最後一個星期日 01:00 ~ 10月最後一個星期日 01:00
             const marchLastSunday = new Date(Date.UTC(year, 3, 1, 1, 0, 0));
-            marchLastSunday.setUTCDate(0); // 上個月最後一天
+            marchLastSunday.setUTCDate(0);
             marchLastSunday.setUTCDate(marchLastSunday.getUTCDate() - marchLastSunday.getUTCDay());
             
             const octoberLastSunday = new Date(Date.UTC(year, 10, 1, 1, 0, 0));
@@ -279,8 +277,8 @@
             
             // 美股時間 (考慮夏令時間)
             const isDST_US = isUSDST(now);
-            const usOffset = isDST_US ? -4 : -5; // EDT: UTC-4, EST: UTC-5
-            const usTime = new Date(now.getTime() + (usOffset * 60 + 480) * 60000); // 480 = 台灣 UTC+8
+            const timeDiff = isDST_US ? -12 : -13; // 台灣比美東快12或13小時
+            const usTime = new Date(taiwanTime.getTime() + timeDiff * 3600000);
             const usHour = usTime.getHours();
             const usMinute = usTime.getMinutes();
             const usTotalMinutes = usHour * 60 + usMinute;
@@ -288,8 +286,8 @@
             
             // 英股時間 (考慮夏令時間)
             const isDST_UK = isUKDST(now);
-            const ukOffset = isDST_UK ? 1 : 0; // BST: UTC+1, GMT: UTC+0
-            const ukTime = new Date(now.getTime() + (ukOffset * 60 - 480) * 60000);
+            const ukTimeDiff = isDST_UK ? -7 : -8; // 台灣比英國快7或8小時
+            const ukTime = new Date(taiwanTime.getTime() + ukTimeDiff * 3600000);
             const ukHour = ukTime.getHours();
             const ukMinute = ukTime.getMinutes();
             const ukTotalMinutes = ukHour * 60 + ukMinute;
