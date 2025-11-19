@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <link rel="apple-touch-icon" sizes="1024x1024" href="touchicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>奇美醫院特約商店搜尋</title>
@@ -153,12 +152,12 @@
             color: #333;
         }
         
-        .store-number {
+        .terminated {
+            background: #ffe0e0;
+            color: #d00;
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.85em;
-            background: #e0e0e0;
-            color: #666;
             font-weight: bold;
         }
         
@@ -184,15 +183,6 @@
         .detail-value {
             color: #333;
             word-break: break-word;
-        }
-        
-        .terminated {
-            background: #ffe0e0;
-            color: #d00;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: bold;
         }
         
         .no-results {
@@ -282,13 +272,32 @@
                 dynamicTyping: false,
                 complete: function(results) {
                     console.log('CSV 載入完成:', results);
+                    console.log('原始資料筆數:', results.data.length);
+                    console.log('第一筆資料:', results.data[0]);
+                    console.log('欄位名稱:', results.meta.fields);
+                    
+                    // 過濾有效的商店資料
                     allData = results.data.filter(row => {
                         const storeName = (row['商店名稱'] || '').trim();
-                        return storeName !== '';
+                        return storeName !== '' && storeName !== '商店名稱';
                     });
                     
+                    console.log('過濾後資料筆數:', allData.length);
                     document.getElementById('loadingDiv').style.display = 'none';
-                    displayResults(allData);
+                    
+                    if (allData.length === 0) {
+                        document.getElementById('resultsDiv').innerHTML = `
+                            <div class="error">
+                                <strong>⚠️ 資料載入問題</strong><br><br>
+                                CSV 已載入但找不到有效資料。<br>
+                                原始資料筆數: ${results.data.length}<br>
+                                欄位名稱: ${results.meta.fields ? results.meta.fields.join(', ') : '無法取得'}<br><br>
+                                <small>請開啟瀏覽器的開發者工具 (F12) 查看 Console 標籤的詳細資訊</small>
+                            </div>
+                        `;
+                    } else {
+                        displayResults(allData);
+                    }
                 },
                 error: function(error) {
                     console.error('載入錯誤:', error);
@@ -369,18 +378,13 @@
                         <div class="store-header">
                             <div class="store-name">${store['商店名稱'] || '-'}</div>
                             <div>
-                                ${store['編號'] ? `<span class="store-number">編號: ${store['編號']}</span>` : ''}
                                 ${isTerminated ? `<span class="terminated">已終止合約</span>` : ''}
                             </div>
                         </div>
                         <div class="store-details">
+                            ${createDetailItem('💰 折扣內容', store['折扣內容'])}
                             ${createDetailItem('📍 地址', store['住址'])}
                             ${createDetailItem('📞 電話', store['電話'])}
-                            ${createDetailItem('👤 聯絡人', store['聯絡人'])}
-                            ${createDetailItem('📱 手機', store['手機'])}
-                            ${createDetailItem('📧 信箱', store['信箱'])}
-                            ${createDetailItem('💰 折扣內容', store['折扣內容'])}
-                            ${createDetailItem('📝 備註', store['備註'])}
                             ${createDetailItem('⚠️ 合約終止', store['合約終止'])}
                         </div>
                     </div>
