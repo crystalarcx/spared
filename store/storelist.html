@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奇美醫院特約商店搜尋</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        #searchInput {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        #searchInput:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .result-count {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .store-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .store-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .store-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .store-name {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .store-number {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            background: #e0e0e0;
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .store-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        
+        .detail-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .detail-value {
+            color: #333;
+            word-break: break-word;
+        }
+        
+        .terminated {
+            background: #ffe0e0;
+            color: #d00;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .no-results-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .error {
+            background: #ffe0e0;
+            color: #d00;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 奇美醫院特約商店搜尋</h1>
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="輸入商店名稱搜尋..."
+                    autocomplete="off"
+                >
+                <button id="searchBtn" onclick="searchStores()">🔍 搜尋</button>
+            </div>
+        </div>
+        
+        <div id="loadingDiv" class="loading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>載入資料中，請稍候...</p>
+        </div>
+        
+        <div id="resultsDiv"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script>
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKu6EtVNOk4RzOLLkFArv-Rqly_66hJgLfxlm_COTmRfy9SwoHOKQGidQfSGIt7plUUsk_W4gyoHTq/pub?output=csv';
+        let allData = [];
+
+        // 載入 CSV 資料
+        async function loadCSVData() {
+            document.getElementById('loadingDiv').style.display = 'block';
+            document.getElementById('resultsDiv').innerHTML = '';
+
+            Papa.parse(CSV_URL, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                dynamicTyping: false,
+                complete: function(results) {
+                    console.log('CSV 載入完成:', results);
+                    allData = results.data.filter(row => {
+                        const storeName = (row['商店名稱'] || '').trim();
+                        return storeName !== '';
+                    });
+                    
+                    document.getElementById('loadingDiv').style.display = 'none';
+                    displayResults(allData);
+                },
+                error: function(error) {
+                    console.error('載入錯誤:', error);
+                    document.getElementById('loadingDiv').style.display = 'none';
+                    document.getElementById('resultsDiv').innerHTML = 
+                        `<div class="error">
+                            <strong>載入資料時發生錯誤</strong><br>
+                            ${error.message}<br><br>
+                            <small>請確認 CSV 連結是否正確，且已正確發佈到網路。</small>
+                        </div>`;
+                }
+            });
+        }
+
+        // 搜尋商店
+        function searchStores() {
+            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+            
+            if (searchTerm === '') {
+                displayResults(allData);
+                return;
+            }
+
+            const filteredData = allData.filter(store => {
+                const storeName = (store['商店名稱'] || '').toLowerCase();
+                return storeName.includes(searchTerm);
+            });
+
+            displayResults(filteredData);
+        }
+
+        // 顯示結果
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('resultsDiv');
+            
+            if (data.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="results">
+                        <div class="no-results">
+                            <div class="no-results-icon">🔍</div>
+                            <h2>找不到相關商店</h2>
+                            <p>請嘗試使用其他關鍵字搜尋</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="results">';
+            
+            // 統計資訊
+            const totalStores = data.length;
+            const terminatedStores = data.filter(s => (s['合約終止'] || '').trim() !== '').length;
+            const activeStores = totalStores - terminatedStores;
+            
+            html += `
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number">${totalStores}</div>
+                        <div class="stat-label">總商店數</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${activeStores}</div>
+                        <div class="stat-label">營業中</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${terminatedStores}</div>
+                        <div class="stat-label">已終止</div>
+                    </div>
+                </div>
+            `;
+
+            data.forEach(store => {
+                const isTerminated = (store['合約終止'] || '').trim() !== '';
+                
+                html += `
+                    <div class="store-card">
+                        <div class="store-header">
+                            <div class="store-name">${store['商店名稱'] || '-'}</div>
+                            <div>
+                                ${store['編號'] ? `<span class="store-number">編號: ${store['編號']}</span>` : ''}
+                                ${isTerminated ? `<span class="terminated">已終止合約</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="store-details">
+                            ${createDetailItem('📍 地址', store['住址'])}
+                            ${createDetailItem('📞 電話', store['電話'])}
+                            ${createDetailItem('👤 聯絡人', store['聯絡人'])}
+                            ${createDetailItem('📱 手機', store['手機'])}
+                            ${createDetailItem('📧 信箱', store['信箱'])}
+                            ${createDetailItem('💰 折扣內容', store['折扣內容'])}
+                            ${createDetailItem('📝 備註', store['備註'])}
+                            ${createDetailItem('⚠️ 合約終止', store['合約終止'])}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        }
+
+        // 建立詳細資訊項目
+        function createDetailItem(label, value) {
+            if (!value || value.trim() === '') return '';
+            return `
+                <div class="detail-item">
+                    <div class="detail-label">${label}</div>
+                    <div class="detail-value">${value}</div>
+                </div>
+            `;
+        }
+
+        // Enter 鍵搜尋
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchStores();
+            }
+        });
+
+        // 頁面載入時自動載入資料
+        window.addEventListener('load', loadCSVData);
+    </script>
+</body>
+</html>
