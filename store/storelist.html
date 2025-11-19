@@ -349,43 +349,26 @@
             let html = '<div class="results">';
             
             // 統計資訊
-            const totalStores = data.length;
-            const terminatedStores = data.filter(s => (s['合約終止'] || '').trim() !== '').length;
-            const activeStores = totalStores - terminatedStores;
-            
             html += `
                 <div class="stats">
                     <div class="stat-card">
-                        <div class="stat-number">${totalStores}</div>
+                        <div class="stat-number">${data.length}</div>
                         <div class="stat-label">總商店數</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">${activeStores}</div>
-                        <div class="stat-label">營業中</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">${terminatedStores}</div>
-                        <div class="stat-label">已終止</div>
                     </div>
                 </div>
             `;
 
             data.forEach(store => {
-                const isTerminated = (store['合約終止'] || '').trim() !== '';
-                
                 html += `
                     <div class="store-card">
                         <div class="store-header">
                             <div class="store-name">${store['商店名稱'] || '-'}</div>
-                            <div>
-                                ${isTerminated ? `<span class="terminated">已終止合約</span>` : ''}
-                            </div>
                         </div>
                         <div class="store-details">
                             ${createDetailItem('💰 折扣內容', store['折扣內容'])}
                             ${createDetailItem('📍 地址', store['住址'])}
                             ${createDetailItem('📞 電話', store['電話'])}
-                            ${createDetailItem('⚠️ 合約終止', store['合約終止'])}
+                            ${createDetailItem('📅 合約終止日', store['合約終止'])}
                         </div>
                     </div>
                 `;
