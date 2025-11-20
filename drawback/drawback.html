@@ -161,6 +161,15 @@
 <body>
     <div class="container">
         <h1>📊 股票回撤監控儀表板</h1>
+        <div style="text-align: center; color: white; margin-bottom: 20px; font-size: 0.9em;">
+            <span style="background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 20px;">
+                關鍵點位：<span style="color: #10b981;">0~-5%</span> | 
+                <span style="color: #fbbf24;">-5~-10%</span> | 
+                <span style="color: #f97316;">-10~-15%</span> | 
+                <span style="color: #dc2626;">-15~-20%</span> | 
+                <span style="color: #991b1b;">-20%+</span>
+            </span>
+        </div>
         <button class="refresh-btn" onclick="loadData()">🔄 重新整理數據</button>
         <div id="content">
             <div class="loading">載入中...</div>
@@ -172,10 +181,20 @@
         
         function getDrawdownColor(drawdown) {
             const percentage = Math.abs(parseFloat(drawdown));
-            if (percentage < 5) return '#10b981'; // 綠色
-            if (percentage < 10) return '#f59e0b'; // 橙色
-            if (percentage < 15) return '#f97316'; // 深橙色
-            return '#ef4444'; // 紅色
+            if (percentage < 5) return '#10b981'; // 綠色 (0 ~ -5%)
+            if (percentage < 10) return '#fbbf24'; // 黃色 (-5% ~ -10%)
+            if (percentage < 15) return '#f97316'; // 橙色 (-10% ~ -15%)
+            if (percentage < 20) return '#dc2626'; // 紅色 (-15% ~ -20%)
+            return '#991b1b'; // 深紅色 (-20%以上)
+        }
+        
+        function getDrawdownLevel(drawdown) {
+            const percentage = Math.abs(parseFloat(drawdown));
+            if (percentage < 5) return '安全區';
+            if (percentage < 10) return '輕微回撤';
+            if (percentage < 15) return '中度回撤';
+            if (percentage < 20) return '重度回撤';
+            return '嚴重回撤';
         }
         
         function loadData() {
@@ -222,6 +241,8 @@
                 const color = getDrawdownColor(stock.drawdown);
                 const drawdownAbs = Math.abs(stock.drawdown);
                 
+                const level = getDrawdownLevel(stock.drawdown);
+                
                 html += `
                     <div class="card">
                         <div class="card-header">
@@ -231,17 +252,16 @@
                             </div>
                         </div>
                         <div class="info-row">
+                            <span class="info-label">狀態</span>
+                            <span class="info-value" style="color: ${color};">${level}</span>
+                        </div>
+                        <div class="info-row">
                             <span class="info-label">120日高點</span>
-                            <span class="info-value">$${stock.highPrice.toFixed(2)}</span>
+                            <span class="info-value">${stock.highPrice.toFixed(2)}</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">目前價位</span>
-                            <span class="info-value">$${stock.currentPrice.toFixed(2)}</span>
-                        </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: ${drawdownAbs}%; background: ${color};">
-                                ${drawdownAbs.toFixed(1)}%
-                            </div>
+                            <span class="info-value">${stock.currentPrice.toFixed(2)}</span>
                         </div>
                     </div>
                 `;
