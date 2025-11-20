@@ -121,6 +121,7 @@
             overflow: hidden;
             margin-top: 15px;
             position: relative;
+            display: none;
         }
         
         .progress-bar {
@@ -291,7 +292,7 @@
                     labels: stocks.map(s => s.name),
                     datasets: [{
                         label: '回撤百分比 (%)',
-                        data: stocks.map(s => Math.abs(s.drawdown)),
+                        data: stocks.map(s => s.drawdown), // 使用負值
                         backgroundColor: stocks.map(s => getDrawdownColor(s.drawdown)),
                         borderWidth: 2,
                         borderColor: '#fff'
@@ -320,12 +321,33 @@
                     },
                     scales: {
                         y: {
-                            beginAtZero: true,
+                            min: -25,
+                            max: 5,
                             title: {
                                 display: true,
                                 text: '回撤 (%)',
                                 font: {
                                     size: 14
+                                }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                },
+                                stepSize: 5
+                            },
+                            grid: {
+                                color: function(context) {
+                                    if (context.tick.value === 0) {
+                                        return '#000'; // 0% 線加粗
+                                    }
+                                    return '#e5e5e5';
+                                },
+                                lineWidth: function(context) {
+                                    if (context.tick.value === 0) {
+                                        return 3;
+                                    }
+                                    return 1;
                                 }
                             }
                         },
