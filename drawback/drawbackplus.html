@@ -67,7 +67,7 @@
         }
         
         .time {
-            font-size: 48px;
+            font-size: 52px;
             font-weight: 700;
             margin-bottom: 8px;
             letter-spacing: -1px;
@@ -140,9 +140,47 @@
         }
         
         .market-info-text {
-            font-size: 13px;
+            font-size: 12px;
             color: #6b7280;
-            line-height: 1.5;
+            line-height: 1.6;
+            margin-top: 6px;
+        }
+        
+        .app-buttons {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .app-button {
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #00a651 0%, #008542 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0, 165, 81, 0.25);
+        }
+        
+        .app-button:active {
+            transform: scale(0.97);
+        }
+        
+        .app-button.fubon {
+            background: linear-gradient(135deg, #0066cc 0%, #004999 100%);
+            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.25);
+        }
+        
+        .app-button.futu {
+            background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+            box-shadow: 0 2px 8px rgba(255, 165, 0, 0.25);
         }
         
         .refresh-btn {
@@ -354,7 +392,16 @@
                         <div class="market-name-inline">🇺🇸 美股</div>
                         <span class="market-status-badge" id="us-status">載入中...</span>
                     </div>
+                    <div class="market-info-text" id="us-schedule">載入中...</div>
                     <div class="market-info-text" id="us-time">載入中...</div>
+                    <div class="app-buttons">
+                        <button class="app-button" onclick="window.location.href='tos://'">
+                            📱 開啟 thinkorswim
+                        </button>
+                        <button class="app-button futu" onclick="window.location.href='futunn://'">
+                            📱 開啟 富途牛牛
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="market-status-card" id="uk-market-card">
@@ -362,7 +409,13 @@
                         <div class="market-name-inline">🇬🇧 英股</div>
                         <span class="market-status-badge" id="uk-status">載入中...</span>
                     </div>
+                    <div class="market-info-text" id="uk-schedule">載入中...</div>
                     <div class="market-info-text" id="uk-time">載入中...</div>
+                    <div class="app-buttons">
+                        <button class="app-button fubon" onclick="window.location.href='touchstockfbs://'">
+                            📱 開啟 富邦e點通
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="market-status-card" id="tw-market-card">
@@ -370,7 +423,13 @@
                         <div class="market-name-inline">🇹🇼 台股</div>
                         <span class="market-status-badge" id="tw-status">載入中...</span>
                     </div>
+                    <div class="market-info-text" id="tw-schedule">載入中...</div>
                     <div class="market-info-text" id="tw-time">載入中...</div>
+                    <div class="app-buttons">
+                        <button class="app-button fubon" onclick="window.location.href='touchstockskis://'">
+                            📱 開啟 新光富貴角10號
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -615,6 +674,13 @@
             const usTotalMinutes = usHour * 60 + usMinute;
             const usDay = usTime.getDay();
             
+            // 美股時間表 (台灣時間)
+            const usPreStart = isDST_US ? '16:00' : '17:00';
+            const usPreEnd = isDST_US ? '21:30' : '22:30';
+            const usMainEnd = isDST_US ? '隔日04:00' : '隔日05:00';
+            const usPostEnd = isDST_US ? '隔日08:00' : '隔日09:00';
+            const usSchedule = `台灣時間 盤前 ${usPreStart}-${usPreEnd} | 開盤 ${usPreEnd}-${usMainEnd}`;
+            
             let usStatus, usStatusText, usTimeInfo;
             if (usDay === 0 || usDay === 6) {
                 usStatus = 'status-closed';
@@ -649,6 +715,11 @@
             const ukTotalMinutes = ukHour * 60 + ukMinute;
             const ukDay = ukTime.getDay();
             
+            // 英股時間表 (台灣時間)
+            const ukStart = isDST_UK ? '15:00' : '16:00';
+            const ukEnd = isDST_UK ? '23:30' : '隔日00:30';
+            const ukSchedule = `台灣時間 開盤 ${ukStart}-${ukEnd}`;
+            
             let ukStatus, ukStatusText, ukTimeInfo;
             if (ukDay === 0 || ukDay === 6) {
                 ukStatus = 'status-closed';
@@ -671,6 +742,7 @@
             const twMinute = taiwanTime.getMinutes();
             const twTotalMinutes = twHour * 60 + twMinute;
             const twDay = taiwanTime.getDay();
+            const twSchedule = '台灣時間 開盤 09:00-13:25';
             
             let twStatus, twStatusText, twTimeInfo;
             if (twDay === 0 || twDay === 6) {
@@ -690,9 +762,9 @@
             }
             
             return {
-                us: { status: usStatus, text: usStatusText, time: usTimeInfo },
-                uk: { status: ukStatus, text: ukStatusText, time: ukTimeInfo },
-                tw: { status: twStatus, text: twStatusText, time: twTimeInfo }
+                us: { status: usStatus, text: usStatusText, time: usTimeInfo, schedule: usSchedule },
+                uk: { status: ukStatus, text: ukStatusText, time: ukTimeInfo, schedule: ukSchedule },
+                tw: { status: twStatus, text: twStatusText, time: twTimeInfo, schedule: twSchedule }
             };
         }
         
@@ -703,7 +775,6 @@
             const timeStr = taiwanTime.toLocaleTimeString('zh-TW', { 
                 hour: '2-digit', 
                 minute: '2-digit',
-                second: '2-digit',
                 hour12: false 
             });
             
@@ -723,6 +794,7 @@
             const usStatusEl = document.getElementById('us-status');
             usStatusEl.className = 'market-status-badge ' + markets.us.status;
             usStatusEl.textContent = markets.us.text;
+            document.getElementById('us-schedule').textContent = markets.us.schedule;
             document.getElementById('us-time').textContent = markets.us.time;
             document.getElementById('us-market-card').className = 
                 'market-status-card' + (markets.us.status === 'status-open' ? ' active' : '');
@@ -731,6 +803,7 @@
             const ukStatusEl = document.getElementById('uk-status');
             ukStatusEl.className = 'market-status-badge ' + markets.uk.status;
             ukStatusEl.textContent = markets.uk.text;
+            document.getElementById('uk-schedule').textContent = markets.uk.schedule;
             document.getElementById('uk-time').textContent = markets.uk.time;
             document.getElementById('uk-market-card').className = 
                 'market-status-card' + (markets.uk.status === 'status-open' ? ' active' : '');
@@ -739,6 +812,7 @@
             const twStatusEl = document.getElementById('tw-status');
             twStatusEl.className = 'market-status-badge ' + markets.tw.status;
             twStatusEl.textContent = markets.tw.text;
+            document.getElementById('tw-schedule').textContent = markets.tw.schedule;
             document.getElementById('tw-time').textContent = markets.tw.time;
             document.getElementById('tw-market-card').className = 
                 'market-status-card' + (markets.tw.status === 'status-open' ? ' active' : '');
