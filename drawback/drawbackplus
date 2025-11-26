@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <link rel="apple-touch-icon" sizes="1024x1024" href="touchicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票監控整合儀表板</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 15px;
+            }
+        }
+        
+        .clock-section {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .clock {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .time {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .date {
+            font-size: 16px;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+        
+        .market-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .market-status-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .market-status-card.active {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .market-header-inline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .market-name-inline {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .market-status-badge {
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        
+        .status-open {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status-pre {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .status-post {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .status-closed {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .market-info-text {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        
+        .refresh-btn {
+            display: block;
+            margin: 0 auto 20px;
+            padding: 12px 30px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .refresh-btn:active {
+            transform: scale(0.95);
+        }
+        
+        @media (max-width: 768px) {
+            .refresh-btn {
+                padding: 14px 35px;
+                font-size: 17px;
+            }
+        }
+        
+        .section-title {
+            color: white;
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 30px 0 20px 0;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .cards-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        
+        @media (max-width: 768px) {
+            .card {
+                padding: 20px;
+                border-radius: 12px;
+            }
+        }
+        
+        .card:active {
+            transform: scale(0.98);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .stock-name {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        @media (max-width: 768px) {
+            .stock-name {
+                font-size: 1.6em;
+            }
+        }
+        
+        .drawdown-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .drawdown-badge {
+                padding: 10px 18px;
+                font-size: 1.2em;
+            }
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .info-row {
+                padding: 12px;
+                margin: 10px 0;
+            }
+        }
+        
+        .info-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .info-value {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        @media (max-width: 768px) {
+            .info-label {
+                font-size: 1em;
+            }
+            
+            .info-value {
+                font-size: 1.15em;
+            }
+        }
+        
+        .price-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            background: linear-gradient(135deg, #34a853 0%, #1e8e3e 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(52, 168, 83, 0.3);
+        }
+        
+        .price-button:active {
+            transform: scale(0.97);
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .chart-container {
+                padding: 15px;
+                border-radius: 12px;
+            }
+        }
+        
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.5em;
+            padding: 50px;
+        }
+        
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 股票監控整合儀表板</h1>
+        
+        <!-- 時鐘與市場狀態區塊 -->
+        <div class="clock-section">
+            <div class="clock">
+                <div class="time" id="time">--:--:--</div>
+                <div class="date" id="date">----年--月--日 星期-</div>
+            </div>
+            
+            <div class="market-status-grid">
+                <div class="market-status-card" id="us-market-card">
+                    <div class="market-header-inline">
+                        <div class="market-name-inline">🇺🇸 美股</div>
+                        <span class="market-status-badge" id="us-status">載入中...</span>
+                    </div>
+                    <div class="market-info-text" id="us-time">載入中...</div>
+                </div>
+                
+                <div class="market-status-card" id="uk-market-card">
+                    <div class="market-header-inline">
+                        <div class="market-name-inline">🇬🇧 英股</div>
+                        <span class="market-status-badge" id="uk-status">載入中...</span>
+                    </div>
+                    <div class="market-info-text" id="uk-time">載入中...</div>
+                </div>
+                
+                <div class="market-status-card" id="tw-market-card">
+                    <div class="market-header-inline">
+                        <div class="market-name-inline">🇹🇼 台股</div>
+                        <span class="market-status-badge" id="tw-status">載入中...</span>
+                    </div>
+                    <div class="market-info-text" id="tw-time">載入中...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 股票回撤監控 -->
+        <h2 class="section-title">股票回撤監控</h2>
+        <button class="refresh-btn" onclick="loadData()">🔄 重新整理數據</button>
+        <div id="content">
+            <div class="loading">載入中...</div>
+        </div>
+    </div>
+
+    <script>
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRdrFRvNwFHfLgPwITICMxcT4P08Vy09ip1btkBfBXXWID460sD30wIOQp3f7EKEQ0G6tkOqDtersl2/pub?output=csv';
+        
+        // Google Finance 連結對應
+        const GOOGLE_FINANCE_LINKS = {
+            'VOO': 'https://www.google.com/finance/quote/VOO:NYSEARCA',
+            'QQQ': 'https://www.google.com/finance/quote/QQQ:NASDAQ',
+            'VUAA': 'https://www.google.com/finance/quote/VUAA:LON',
+            '0050': 'https://www.google.com/finance/quote/0050:TPE'
+        };
+        
+        function getDrawdownColor(drawdown) {
+            const percentage = Math.abs(parseFloat(drawdown));
+            if (percentage < 5) return '#10b981';
+            if (percentage < 10) return '#fbbf24';
+            if (percentage < 15) return '#f97316';
+            if (percentage < 20) return '#dc2626';
+            return '#991b1b';
+        }
+        
+        function getDrawdownLevel(drawdown) {
+            const percentage = Math.abs(parseFloat(drawdown));
+            if (percentage < 5) return '安全區';
+            if (percentage < 10) return '輕微回撤';
+            if (percentage < 15) return '中度回撤';
+            if (percentage < 20) return '重度回撤';
+            return '嚴重回撤';
+        }
+        
+        function loadData() {
+            Papa.parse(CSV_URL, {
+                download: true,
+                header: false,
+                complete: function(results) {
+                    try {
+                        const data = results.data;
+                        const stocks = [];
+                        
+                        for (let i = 1; i < data.length; i++) {
+                            const row = data[i];
+                            if (row[0] && row[0].trim()) {
+                                stocks.push({
+                                    name: row[0].trim(),
+                                    highPrice: parseFloat(row[1]) || 0,
+                                    currentPrice: parseFloat(row[2]) || 0,
+                                    drawdown: parseFloat(row[3]) || 0
+                                });
+                            }
+                        }
+                        
+                        if (stocks.length > 0) {
+                            displayData(stocks);
+                        } else {
+                            showError('無法讀取數據，請檢查 CSV 格式');
+                        }
+                    } catch (error) {
+                        showError('數據處理錯誤: ' + error.message);
+                    }
+                },
+                error: function(error) {
+                    showError('載入失敗: ' + error.message);
+                }
+            });
+        }
+        
+        function displayData(stocks) {
+            let html = '<div class="cards-container">';
+            
+            stocks.forEach(stock => {
+                const color = getDrawdownColor(stock.drawdown);
+                const level = getDrawdownLevel(stock.drawdown);
+                const googleFinanceLink = GOOGLE_FINANCE_LINKS[stock.name] || '#';
+                
+                html += `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="stock-name">${stock.name}</div>
+                            <div class="drawdown-badge" style="background: ${color};">
+                                ${stock.drawdown.toFixed(2)}%
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">狀態</span>
+                            <span class="info-value" style="color: ${color};">${level}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">120日高點</span>
+                            <span class="info-value">${stock.highPrice.toFixed(2)}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">目前價位</span>
+                            <span class="info-value">${stock.currentPrice.toFixed(2)}</span>
+                        </div>
+                        <a href="${googleFinanceLink}" target="_blank" class="price-button">
+                            📈 查看即時股價
+                        </a>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            html += `
+                <div class="chart-container">
+                    <canvas id="drawdownChart"></canvas>
+                </div>
+            `;
+            
+            document.getElementById('content').innerHTML = html;
+            createChart(stocks);
+        }
+        
+        function createChart(stocks) {
+            const ctx = document.getElementById('drawdownChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: stocks.map(s => s.name),
+                    datasets: [{
+                        label: '回撤百分比 (%)',
+                        data: stocks.map(s => s.drawdown),
+                        backgroundColor: stocks.map(s => getDrawdownColor(s.drawdown)),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: window.innerWidth < 768 ? 1 : 2,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: {
+                                    size: window.innerWidth < 768 ? 12 : 14
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '股票回撤比較圖',
+                            font: {
+                                size: window.innerWidth < 768 ? 16 : 18,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: -25,
+                            max: 5,
+                            title: {
+                                display: true,
+                                text: '回撤 (%)',
+                                font: {
+                                    size: window.innerWidth < 768 ? 12 : 14
+                                }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                },
+                                stepSize: 5
+                            },
+                            grid: {
+                                color: function(context) {
+                                    return context.tick.value === 0 ? '#000' : '#e5e5e5';
+                                },
+                                lineWidth: function(context) {
+                                    return context.tick.value === 0 ? 3 : 1;
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '標的'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function showError(message) {
+            document.getElementById('content').innerHTML = `
+                <div class="error">
+                    ⚠️ ${message}
+                </div>
+            `;
+        }
+        
+        // 市場狀態相關函數
+        function isUSDST(date) {
+            const year = date.getUTCFullYear();
+            const marchSecondSunday = new Date(Date.UTC(year, 2, 1, 2, 0, 0));
+            marchSecondSunday.setUTCDate(1 + (7 - marchSecondSunday.getUTCDay()) + 7);
+            
+            const novemberFirstSunday = new Date(Date.UTC(year, 10, 1, 2, 0, 0));
+            novemberFirstSunday.setUTCDate(1 + (7 - novemberFirstSunday.getUTCDay()));
+            
+            return date >= marchSecondSunday && date < novemberFirstSunday;
+        }
+        
+        function isUKDST(date) {
+            const year = date.getUTCFullYear();
+            const marchLastSunday = new Date(Date.UTC(year, 3, 1, 1, 0, 0));
+            marchLastSunday.setUTCDate(0);
+            marchLastSunday.setUTCDate(marchLastSunday.getUTCDate() - marchLastSunday.getUTCDay());
+            
+            const octoberLastSunday = new Date(Date.UTC(year, 10, 1, 1, 0, 0));
+            octoberLastSunday.setUTCDate(0);
+            octoberLastSunday.setUTCDate(octoberLastSunday.getUTCDate() - octoberLastSunday.getUTCDay());
+            
+            return date >= marchLastSunday && date < octoberLastSunday;
+        }
+        
+        function getMarketStatus() {
+            const now = new Date();
+            const taiwanTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+            
+            // 美股
+            const isDST_US = isUSDST(now);
+            const timeDiff = isDST_US ? -12 : -13;
+            const usTime = new Date(taiwanTime.getTime() + timeDiff * 3600000);
+            const usHour = usTime.getHours();
+            const usMinute = usTime.getMinutes();
+            const usTotalMinutes = usHour * 60 + usMinute;
+            const usDay = usTime.getDay();
+            
+            let usStatus, usStatusText, usTimeInfo;
+            if (usDay === 0 || usDay === 6) {
+                usStatus = 'status-closed';
+                usStatusText = '休市';
+                usTimeInfo = `美東時間: ${usTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})}`;
+            } else {
+                if (usTotalMinutes >= 240 && usTotalMinutes < 570) {
+                    usStatus = 'status-pre';
+                    usStatusText = '盤前';
+                    usTimeInfo = `美東時間: ${usTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})} | 盤前 04:00-09:30`;
+                } else if (usTotalMinutes >= 570 && usTotalMinutes < 960) {
+                    usStatus = 'status-open';
+                    usStatusText = '開盤中';
+                    usTimeInfo = `美東時間: ${usTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})} | 開盤 09:30-16:00`;
+                } else if (usTotalMinutes >= 960 && usTotalMinutes < 1200) {
+                    usStatus = 'status-post';
+                    usStatusText = '盤後';
+                    usTimeInfo = `美東時間: ${usTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})} | 盤後 16:00-20:00`;
+                } else {
+                    usStatus = 'status-closed';
+                    usStatusText = '收盤';
+                    usTimeInfo = `美東時間: ${usTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})}`;
+                }
+            }
+            
+            // 英股
+            const isDST_UK = isUKDST(now);
+            const ukTimeDiff = isDST_UK ? -7 : -8;
+            const ukTime = new Date(taiwanTime.getTime() + ukTimeDiff * 3600000);
+            const ukHour = ukTime.getHours();
+            const ukMinute = ukTime.getMinutes();
+            const ukTotalMinutes = ukHour * 60 + ukMinute;
+            const ukDay = ukTime.getDay();
+            
+            let ukStatus, ukStatusText, ukTimeInfo;
+            if (ukDay === 0 || ukDay === 6) {
+                ukStatus = 'status-closed';
+                ukStatusText = '休市';
+                ukTimeInfo = `英國時間: ${ukTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})}`;
+            } else {
+                if (ukTotalMinutes >= 480 && ukTotalMinutes < 990) {
+                    ukStatus = 'status-open';
+                    ukStatusText = '開盤中';
+                    ukTimeInfo = `英國時間: ${ukTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})} | 開盤 08:00-16:30`;
+                } else {
+                    ukStatus = 'status-closed';
+                    ukStatusText = '收盤';
+                    ukTimeInfo = `英國時間: ${ukTime.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'})}`;
+                }
+            }
+            
+            // 台股
+            const twHour = taiwanTime.getHours();
+            const twMinute = taiwanTime.getMinutes();
+            const twTotalMinutes = twHour * 60 + twMinute;
+            const twDay = taiwanTime.getDay();
+            
+            let twStatus, twStatusText, twTimeInfo;
+            if (twDay === 0 || twDay === 6) {
+                twStatus = 'status-closed';
+                twStatusText = '休市';
+                twTimeInfo = '週末休市';
+            } else {
+                if (twTotalMinutes >= 540 && twTotalMinutes < 805) {
+                    twStatus = 'status-open';
+                    twStatusText = '開盤中';
+                    twTimeInfo = '開盤時間 09:00-13:25';
+                } else {
+                    twStatus = 'status-closed';
+                    twStatusText = '收盤';
+                    twTimeInfo = '開盤時間 09:00-13:25';
+                }
+            }
+            
+            return {
+                us: { status: usStatus, text: usStatusText, time: usTimeInfo },
+                uk: { status: ukStatus, text: ukStatusText, time: ukTimeInfo },
+                tw: { status: twStatus, text: twStatusText, time: twTimeInfo }
+            };
+        }
+        
+        function updateClock() {
+            const now = new Date();
+            const taiwanTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+            
+            const timeStr = taiwanTime.toLocaleTimeString('zh-TW', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false 
+            });
+            
+            const dateStr = taiwanTime.toLocaleDateString('zh-TW', { 
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            
+            document.getElementById('time').textContent = timeStr;
+            document.getElementById('date').textContent = dateStr;
+            
+            const markets = getMarketStatus();
+            
+            // 更新美股
+            const usStatusEl = document.getElementById('us-status');
+            usStatusEl.className = 'market-status-badge ' + markets.us.status;
+            usStatusEl.textContent = markets.us.text;
+            document.getElementById('us-time').textContent = markets.us.time;
+            document.getElementById('us-market-card').className = 
+                'market-status-card' + (markets.us.status === 'status-open' ? ' active' : '');
+            
+            // 更新英股
+            const ukStatusEl = document.getElementById('uk-status');
+            ukStatusEl.className = 'market-status-badge ' + markets.uk.status;
+            ukStatusEl.textContent = markets.uk.text;
+            document.getElementById('uk-time').textContent = markets.uk.time;
+            document.getElementById('uk-market-card').className = 
+                'market-status-card' + (markets.uk.status === 'status-open' ? ' active' : '');
+            
+            // 更新台股
+            const twStatusEl = document.getElementById('tw-status');
+            twStatusEl.className = 'market-status-badge ' + markets.tw.status;
+            twStatusEl.textContent = markets.tw.text;
+            document.getElementById('tw-time').textContent = markets.tw.time;
+            document.getElementById('tw-market-card').className = 
+                'market-status-card' + (markets.tw.status === 'status-open' ? ' active' : '');
+        }
+        
+        // 初始化
+        loadData();
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
